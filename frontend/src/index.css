@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-mono bg-light-bg text-light-text transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-dark-bg text-dark-text;
+  }
+}
+
+@layer utilities {
+  .retro-card {
+    @apply border-3 border-black rounded-lg shadow-retro;
+  }
+
+  .retro-button {
+    @apply border-3 border-black rounded-lg shadow-retro hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-150 active:translate-x-1 active:translate-y-1 active:shadow-none;
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+}
