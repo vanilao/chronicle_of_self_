@@ -17,11 +17,16 @@ import {
 const AchievementsGrid = ({ stats, user }) => {
   // Achievement component for reuse
   const Achievement = ({ unlocked, icon: Icon, title, description, progress }) => (
-    <Card sx={{ bgcolor: unlocked ? 'secondary.main' : 'background.default', opacity: unlocked ? 1 : 0.5 }}>
-      <CardContent sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-          <Icon sx={{ fontSize: 32, color: unlocked ? 'text.primary' : 'text.secondary' }} />
-          <Box>
+    <Card sx={{ 
+      bgcolor: unlocked ? 'secondary.main' : 'background.default', 
+      opacity: unlocked ? 1 : 0.5,
+      height: '100%',
+      minHeight: '120px'
+    }}>
+      <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1 }}>
+          <Icon sx={{ fontSize: 32, color: unlocked ? 'text.primary' : 'text.secondary', flexShrink: 0 }} />
+          <Box sx={{ flex: 1 }}>
             <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.875rem', color: 'text.primary' }}>
               {title}
             </Typography>
@@ -30,11 +35,13 @@ const AchievementsGrid = ({ stats, user }) => {
             </Typography>
           </Box>
         </Box>
-        {!unlocked && progress && (
-          <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'text.primary', opacity: 0.6 }}>
-            {progress}
-          </Typography>
-        )}
+        <Box sx={{ minHeight: '20px', display: 'flex', alignItems: 'flex-end' }}>
+          {!unlocked && progress && (
+            <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'text.primary', opacity: 0.6 }}>
+              {progress}
+            </Typography>
+          )}
+        </Box>
       </CardContent>
     </Card>
   );

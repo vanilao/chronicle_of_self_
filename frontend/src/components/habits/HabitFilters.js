@@ -38,13 +38,26 @@ const HabitFilters = ({
                 opacity: selectedCategory === category ? 1 : 0.7,
                 '&:hover': {
                   opacity: 1,
+                  boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+                  transform: 'translate(2px, 2px)',
                   bgcolor: selectedCategory === category ? 'text.primary' : 'background.default',
+                },
+                '&:active': {
+                  boxShadow: '0px 0px 0px rgba(0,0,0,1)',
+                  transform: 'translate(4px, 4px)',
                 },
                 '&.Mui-selected': {
                   bgcolor: 'text.primary',
                   color: 'background.default',
+                  opacity: 1,
                   '&:hover': {
                     bgcolor: 'text.primary',
+                    boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+                    transform: 'translate(2px, 2px)',
+                  },
+                  '&:active': {
+                    boxShadow: '0px 0px 0px rgba(0,0,0,1)',
+                    transform: 'translate(4px, 4px)',
                   }
                 }
               }}
@@ -80,13 +93,26 @@ const HabitFilters = ({
                 opacity: selectedDayFilter === option ? 1 : 0.7,
                 '&:hover': {
                   opacity: 1,
+                  boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+                  transform: 'translate(2px, 2px)',
                   bgcolor: selectedDayFilter === option ? 'text.primary' : 'background.default',
+                },
+                '&:active': {
+                  boxShadow: '0px 0px 0px rgba(0,0,0,1)',
+                  transform: 'translate(4px, 4px)',
                 },
                 '&.Mui-selected': {
                   bgcolor: 'text.primary',
                   color: 'background.default',
+                  opacity: 1,
                   '&:hover': {
                     bgcolor: 'text.primary',
+                    boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+                    transform: 'translate(2px, 2px)',
+                  },
+                  '&:active': {
+                    boxShadow: '0px 0px 0px rgba(0,0,0,1)',
+                    transform: 'translate(4px, 4px)',
                   }
                 }
               }}

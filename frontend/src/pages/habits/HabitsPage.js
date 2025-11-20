@@ -54,7 +54,7 @@ const HabitsPage = () => {
   return (
     <Box className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, justifyContent: 'space-between', gap: 2, mb: 4 }}>
+      <Box sx={{ mb: 4 }}>
         <Box>
           <Typography
             variant="h1"
@@ -76,15 +76,6 @@ const HabitsPage = () => {
             Track your daily quests and build your legacy
           </Typography>
         </Box>
-
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          variant="contained"
-          color="secondary"
-          startIcon={<Add />}
-        >
-          NEW HABIT
-        </Button>
       </Box>
 
       {/* Today's Stats */}
@@ -92,11 +83,22 @@ const HabitsPage = () => {
 
       {/* Category Filter */}
       {habits.length > 0 && (
-        <CategoryFilter
-          categories={categories}
-          selectedCategory={filterCategory}
-          onCategoryChange={setFilterCategory}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={filterCategory}
+            onCategoryChange={setFilterCategory}
+          />
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            variant="contained"
+            color="secondary"
+            startIcon={<Add />}
+            sx={{ flexShrink: 0 }}
+          >
+            NEW HABIT
+          </Button>
+        </Box>
       )}
 
       {/* Habits List */}

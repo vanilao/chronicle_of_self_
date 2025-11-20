@@ -140,34 +140,35 @@ const DashboardPage = () => {
         <StatsGrid stats={stats} />
 
         {/* Filters */}
-        <HabitFilters
-          categories={categories}
-          selectedCategory={filterCategory}
-          onCategoryChange={setFilterCategory}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
+          <HabitFilters
+            categories={categories}
+            selectedCategory={filterCategory}
+            onCategoryChange={setFilterCategory}
+          />
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            variant="contained"
+            color="secondary"
+            startIcon={<Add />}
+            sx={{ flexShrink: 0 }}
+          >
+            NEW HABIT
+          </Button>
+        </Box>
 
         {/* Today's Habits Section */}
         <Box className="space-y-6">
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography
-              variant="h2"
-              sx={{
-                fontFamily: 'VT323, monospace',
-                fontSize: '1.875rem',
-                color: 'text.primary'
-              }}
-            >
-              DAILY QUESTS
-            </Typography>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              variant="contained"
-              color="secondary"
-              startIcon={<Add />}
-            >
-              NEW HABIT
-            </Button>
-          </Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontFamily: 'VT323, monospace',
+              fontSize: '1.875rem',
+              color: 'text.primary'
+            }}
+          >
+            DAILY QUESTS
+          </Typography>
 
           {/* Today's Habits */}
           {todaysHabits.length === 0 ? (

@@ -27,11 +27,26 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
             boxShadow: '4px 4px 0px rgba(0,0,0,1)',
             bgcolor: selectedCategory === category ? 'text.primary' : 'background.default',
             color: selectedCategory === category ? 'background.default' : 'text.primary',
+            '&:hover': {
+              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+              transform: 'translate(2px, 2px)',
+              bgcolor: selectedCategory === category ? 'text.primary' : 'background.default',
+            },
+            '&:active': {
+              boxShadow: '0px 0px 0px rgba(0,0,0,1)',
+              transform: 'translate(4px, 4px)',
+            },
             '&.Mui-selected': {
               bgcolor: 'text.primary',
               color: 'background.default',
               '&:hover': {
-                bgcolor: 'text.primary'
+                bgcolor: 'text.primary',
+                boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+                transform: 'translate(2px, 2px)',
+              },
+              '&:active': {
+                boxShadow: '0px 0px 0px rgba(0,0,0,1)',
+                transform: 'translate(4px, 4px)',
               }
             }
           }}

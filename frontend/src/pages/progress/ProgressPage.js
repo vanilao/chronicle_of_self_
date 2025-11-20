@@ -193,7 +193,19 @@ const ProgressPage = () => {
           <Grid container spacing={2}>
             {Object.entries(stats.categoryBreakdown).map(([category, count]) => (
               <Grid size={{ xs: 6, md: 3 }} key={category}>
-                <Box sx={{ bgcolor: 'background.default', p: 2, borderRadius: 2, border: '3px solid black', boxShadow: '4px 4px 0px rgba(0,0,0,1)', textAlign: 'center' }}>
+                <Box sx={{ 
+                  bgcolor: 'background.default', 
+                  p: 2, 
+                  borderRadius: 2, 
+                  border: '3px solid black', 
+                  boxShadow: '4px 4px 0px rgba(0,0,0,1)', 
+                  textAlign: 'center',
+                  height: '100%',
+                  minHeight: '120px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center'
+                }}>
                   <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', fontWeight: 700, color: 'text.primary', mb: 1 }}>
                     {category.toUpperCase()}
                   </Typography>
@@ -203,11 +215,13 @@ const ProgressPage = () => {
                   <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'text.secondary' }}>
                     {stats.totalHabits > 0 ? Math.round((count / stats.totalHabits) * 100) : 0}%
                   </Typography>
-                  {user.archetypeCategory === category && (
-                    <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'primary.main', fontWeight: 700, mt: 1 }}>
-                      +25% XP
-                    </Typography>
-                  )}
+                  <Box sx={{ minHeight: '20px' }}>
+                    {user.archetypeCategory === category && (
+                      <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'primary.main', fontWeight: 700 }}>
+                        +25% XP
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
               </Grid>
             ))}

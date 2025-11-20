@@ -32,6 +32,7 @@ const UserNavbar = () => {
   if (!user) return null;
 
   const xpProgress = getXPProgressPercentage(user.currentXP ?? 0, user.nextLevelXP ?? 100);
+  const hasUploadedAvatar = user?.avatarType === 'uploaded' && user?.avatarUrl;
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -145,15 +146,21 @@ const UserNavbar = () => {
             }}
           >
             <Avatar
+              src={hasUploadedAvatar ? user.avatarUrl : undefined}
+              alt={user?.username || 'Profile avatar'}
               sx={{
                 width: 32,
                 height: 32,
-                bgcolor: 'primary.main',
+                bgcolor: hasUploadedAvatar
+                  ? 'background.paper'
+                  : 'primary.main',
                 border: '2px solid black',
-                mr: 1.5
+                mr: 1.5,
+                fontFamily: 'VT323, monospace',
+                fontSize: '0.875rem'
               }}
             >
-              <Person sx={{ fontSize: 20, color: 'text.primary' }} />
+              {!hasUploadedAvatar && (user?.username?.charAt(0).toUpperCase() || 'U')}
             </Avatar>
 
             <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'left', minWidth: 120 }}>
