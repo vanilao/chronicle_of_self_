@@ -22,20 +22,16 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTimeTravel } from '../../contexts/TimeTravelContext';
 import { getXPProgressPercentage } from '../../utils/levelingSystem';
 
 const UserNavbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
-  const { currentDate, offsetDays, advanceDay, rewindDay, resetDay, isTimeTraveling } = useTimeTravel();
   const [anchorEl, setAnchorEl] = useState(null);
 
   if (!user) return null;
 
   const xpProgress = getXPProgressPercentage(user.currentXP ?? 0, user.nextLevelXP ?? 100);
-  const formattedDate = currentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  const offsetLabel = offsetDays === 0 ? 'Today' : `${offsetDays > 0 ? '+' : ''}${offsetDays}d`;
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);

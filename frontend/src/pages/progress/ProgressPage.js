@@ -4,9 +4,9 @@ import {
   Typography,
   Card,
   CardContent,
-  Grid,
-  CalendarMonth
+  Grid
 } from '@mui/material';
+import { CalendarMonth } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useTimeTravel } from '../../contexts/TimeTravelContext';
