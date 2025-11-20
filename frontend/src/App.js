@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { HabitsProvider } from './contexts/HabitsContext';
 import { TimeTravelProvider } from './contexts/TimeTravelContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -105,11 +106,13 @@ function App() {
     <ThemeProvider>
       <TimeTravelProvider>
         <AuthProvider>
-          <HabitsProvider>
-            <Router>
-              <AppRoutes />
-            </Router>
-          </HabitsProvider>
+          <SettingsProvider>
+            <HabitsProvider>
+              <Router>
+                <AppRoutes />
+              </Router>
+            </HabitsProvider>
+          </SettingsProvider>
         </AuthProvider>
       </TimeTravelProvider>
     </ThemeProvider>

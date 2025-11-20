@@ -13,12 +13,15 @@ import {
 } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSettings } from '../../contexts/SettingsContext';
 
 const XPToast = () => {
   const { xpToast, dismissXpToast } = useHabits();
   const { user } = useAuth();
+  const { settings } = useSettings();
 
-  if (!xpToast) return null;
+  // Don't show if notifications are disabled in settings
+  if (!xpToast || !settings.notifications) return null;
 
   const { amount, habitName } = xpToast;
   const isPositive = amount > 0;

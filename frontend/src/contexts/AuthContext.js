@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { processXPGain, getTitleForLevel, getXPForNextLevel } from '../utils/levelingSystem';
-import { getCurrentUserId, clearUserData } from '../utils/userStorage';
+import { getCurrentUserId, clearUserData, migrateUserData, isValidEmail } from '../utils/userStorage';
 
 const AuthContext = createContext();
 
@@ -38,7 +38,11 @@ export const AuthProvider = ({ children }) => {
       level,
       currentXP,
       nextLevelXP,
-      title: userData?.title ?? getTitleForLevel(level)
+      title: userData?.title ?? getTitleForLevel(level),
+      avatarType: userData?.avatarType || 'initial',
+      avatarUrl: userData?.avatarUrl || null,
+      selectedAvatarId: userData?.selectedAvatarId || null,
+      unlockedAvatars: userData?.unlockedAvatars || []
     };
   };
 
@@ -123,6 +127,106 @@ export const AuthProvider = ({ children }) => {
     setLevelUpNotification(null);
   };
 
+  /**
+   * Change user email with data migration
+   * @param {object} params - { currentPassword, newEmail }
+   * @returns {object} Result with success flag and error message
+   */
+  const changeEmail = ({ currentPassword, newEmail }) => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    // Validate current password
+    if (user.password && user.password !== currentPassword) {
+      return { success: false, error: 'Current password is incorrect' };
+    }
+
+    // Validate new email format
+    if (!isValidEmail(newEmail)) {
+      return { success: false, error: 'Please enter a valid email address' };
+    }
+
+    // Check if new email is same as current
+    if (newEmail.toLowerCase() === user.email.toLowerCase()) {
+      return { success: false, error: 'New email must be different from current email' };
+    }
+
+    try {
+      const oldEmail = user.email;
+
+      // Migrate user-specific data to new email keys
+      const migrationResult = migrateUserData(oldEmail, newEmail);
+      if (!migrationResult.success) {
+        return {
+          success: false,
+          error: 'Failed to migrate user data. Please try again.'
+        };
+      }
+
+      // Update user object with new email
+      const updatedUser = normalizeUserLevel({
+        ...user,
+        email: newEmail,
+        emailVerified: false // Reset verification status
+      });
+
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: 'An error occurred while changing email. Please try again.'
+      };
+    }
+  };
+
+  /**
+   * Change user password
+   * @param {object} params - { currentPassword, newPassword }
+   * @returns {object} Result with success flag and error message
+   */
+  const changePassword = ({ currentPassword, newPassword }) => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    // Validate current password
+    if (user.password && user.password !== currentPassword) {
+      return { success: false, error: 'Current password is incorrect' };
+    }
+
+    // Check if new password is same as current
+    if (newPassword === currentPassword) {
+      return { success: false, error: 'New password must be different from current password' };
+    }
+
+    // Validate new password minimum requirements
+    if (newPassword.length < 8) {
+      return { success: false, error: 'Password must be at least 8 characters long' };
+    }
+
+    try {
+      // Update user object with new password
+      const updatedUser = {
+        ...user,
+        password: newPassword
+      };
+
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: 'An error occurred while changing password. Please try again.'
+      };
+    }
+  };
+
   const value = {
     user,
     isLoading,
@@ -133,7 +237,9 @@ export const AuthProvider = ({ children }) => {
     register,
     updateUser,
     awardXP,
-    dismissLevelUpNotification
+    dismissLevelUpNotification,
+    changeEmail,
+    changePassword
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

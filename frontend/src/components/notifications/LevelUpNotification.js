@@ -13,6 +13,7 @@ import {
   FlashOn
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import { keyframes } from '@emotion/react';
 
 const bounce = keyframes`
@@ -28,8 +29,10 @@ const pulse = keyframes`
 
 const LevelUpNotification = () => {
   const { levelUpNotification, dismissLevelUpNotification } = useAuth();
+  const { settings } = useSettings();
 
-  if (!levelUpNotification) return null;
+  // Don't show if notifications are disabled in settings
+  if (!levelUpNotification || !settings.notifications) return null;
 
   const { newLevel, newTitle, levelsGained } = levelUpNotification;
 

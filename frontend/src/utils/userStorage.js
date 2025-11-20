@@ -37,3 +37,47 @@ export const getCurrentUserId = () => {
   }
   return null;
 };
+
+// Migrate user data from old email to new email
+export const migrateUserData = (oldEmail, newEmail) => {
+  const keysToMigrate = [
+    'habits',
+    'habitCompletions',
+    'userSettings',
+    'achievements',
+    'timeTravelOffsetDays'
+  ];
+
+  const migrationResults = {
+    success: true,
+    migratedKeys: [],
+    errors: []
+  };
+
+  keysToMigrate.forEach(key => {
+    try {
+      const oldKey = getUserStorageKey(oldEmail, key);
+      const newKey = getUserStorageKey(newEmail, key);
+
+      const data = localStorage.getItem(oldKey);
+      if (data !== null) {
+        // Write to new key
+        localStorage.setItem(newKey, data);
+        // Remove old key
+        localStorage.removeItem(oldKey);
+        migrationResults.migratedKeys.push(key);
+      }
+    } catch (error) {
+      migrationResults.success = false;
+      migrationResults.errors.push({ key, error: error.message });
+    }
+  });
+
+  return migrationResults;
+};
+
+// Validate email format
+export const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
