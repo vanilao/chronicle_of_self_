@@ -20,7 +20,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check for stored auth token on mount
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (storedUser && isLoggedIn) {
       const parsed = JSON.parse(storedUser);
       const normalized = normalizeUserLevel(parsed);
       setUser(normalized);
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }) => {
     const normalized = normalizeUserLevel(userData);
     setUser(normalized);
     localStorage.setItem('user', JSON.stringify(normalized));
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Clear any previous user's data to ensure fresh start
     const userId = normalized.email;
@@ -67,13 +69,14 @@ export const AuthProvider = ({ children }) => {
     }
     
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.setItem('isLoggedIn', 'false');
   };
 
   const register = (userData) => {
     const normalized = normalizeUserLevel(userData);
     setUser(normalized);
     localStorage.setItem('user', JSON.stringify(normalized));
+    localStorage.setItem('isLoggedIn', 'true');
   };
 
   const updateUser = (updates) => {

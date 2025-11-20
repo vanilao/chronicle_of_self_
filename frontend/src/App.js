@@ -25,6 +25,7 @@ import PricingPage from './pages/pricing/PricingPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import EmailVerificationPage from './pages/auth/EmailVerificationPage';
 import ArchetypeSelectionPage from './pages/auth/ArchetypeSelectionPage';
 
@@ -45,7 +46,7 @@ const AppLayout = ({ children }) => {
   const location = useLocation();
 
   // Pages that should not show any navbar/footer
-  const authPages = ['/login', '/register', '/forgot-password', '/verify-email', '/select-archetype'];
+  const authPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/select-archetype'];
   const isAuthPage = authPages.includes(location.pathname);
 
   // Show different navbar based on auth state
@@ -84,6 +85,7 @@ function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
         <Route path="/select-archetype" element={<ArchetypeSelectionPage />} />
 

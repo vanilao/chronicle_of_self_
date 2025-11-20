@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -19,6 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -27,7 +28,17 @@ const LoginPage = () => {
   });
 
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  // Show success message if coming from password reset
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccess(location.state.message);
+      // Clear the state so it doesn't show again on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -39,8 +50,12 @@ const LoginPage = () => {
     if (existingUser) {
       try {
         const userData = JSON.parse(existingUser);
-        // Check if email matches (simple validation)
-        if (userData.email === formData.email) {
+        const identifier = formData.email.trim().toLowerCase();
+        const emailMatch = userData.email && userData.email.toLowerCase() === identifier;
+        const usernameMatch = userData.username && userData.username.toLowerCase() === identifier;
+
+        // Allow login by either email or username
+        if (emailMatch || usernameMatch) {
           // Check if password matches (in real app, this would be hashed)
           if (userData.password === formData.password || !userData.password) {
             login(userData);
@@ -56,7 +71,7 @@ const LoginPage = () => {
       }
     }
 
-    setError('Invalid email or password');
+    setError('Invalid email/username or password');
   };
 
   const handleChange = (e) => {
@@ -103,19 +118,24 @@ const LoginPage = () => {
                 {error}
               </Alert>
             )}
+            {success && (
+              <Alert severity="success" sx={{ mb: 3 }}>
+                {success}
+              </Alert>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <TextField
                 id="email"
                 name="email"
-                type="email"
-                label="EMAIL"
+                type="text"
+                label="EMAIL OR USERNAME"
                 required
                 fullWidth
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="hero@adventure.com"
+                placeholder="hero@adventure.com or heroname"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">

@@ -11,6 +11,7 @@ import {
   InputAdornment
 } from '@mui/material';
 import { Email, ArrowBack, FlashOn } from '@mui/icons-material';
+import { sendPasswordResetEmail, generateVerificationCode, storePasswordResetCode } from '../../utils/emailService';
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();
@@ -24,30 +25,62 @@ const ForgotPasswordPage = () => {
     setError('');
     setIsLoading(true);
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Check if email exists in localStorage (simulating backend validation)
-    const existingUser = localStorage.getItem('user');
-    if (existingUser) {
-      try {
-        const userData = JSON.parse(existingUser);
-        if (userData.email === email) {
-          // In a real app, this would send a password reset email
-          // For demo purposes, we'll just show success message
-          setSuccess(true);
-          setIsLoading(false);
-          return;
+    try {
+      // Check if email exists in localStorage (simulating backend validation)
+      const existingUser = localStorage.getItem('user');
+      let userData = null;
+      
+      if (existingUser) {
+        try {
+          userData = JSON.parse(existingUser);
+          // Also check for username match
+          const identifier = email.trim().toLowerCase();
+          const emailMatch = userData.email && userData.email.toLowerCase() === identifier;
+          const usernameMatch = userData.username && userData.username.toLowerCase() === identifier;
+          
+          if (!emailMatch && !usernameMatch) {
+            userData = null;
+          }
+        } catch {
+          // Invalid stored data, continue
         }
-      } catch {
-        // Invalid stored data, continue
       }
-    }
 
-    // For demo purposes, we'll always show success to prevent email enumeration
-    // In a real app, you might want to handle this differently
-    setSuccess(true);
-    setIsLoading(false);
+      if (!userData) {
+        // For security, don't reveal if email exists or not
+        // Just show success message to prevent email enumeration
+        setSuccess(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Generate reset code and store it
+      const resetCode = generateVerificationCode();
+      storePasswordResetCode(userData.email, resetCode);
+
+      // Send password reset email
+      const emailResult = await sendPasswordResetEmail(
+        userData.email,
+        userData.username,
+        resetCode
+      );
+
+      if (!emailResult.success) {
+        setError('Failed to send reset email. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Store email for reset page
+      localStorage.setItem('resetEmail', userData.email);
+      
+      setSuccess(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Password reset error:', error);
+      setError('An error occurred. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -78,10 +111,11 @@ const ForgotPasswordPage = () => {
               sx={{
                 color: 'text.secondary',
                 fontFamily: '"IBM Plex Mono", monospace',
+                fontSize: '0.875rem',
                 mb: 4
               }}
             >
-              We've sent password reset instructions to your email
+              We've sent a 6-digit reset code to your email
             </Typography>
           </Box>
 
@@ -117,16 +151,13 @@ const ForgotPasswordPage = () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => {
-                    setSuccess(false);
-                    setEmail('');
-                  }}
+                  onClick={() => navigate('/reset-password')}
                   sx={{
                     fontFamily: '"IBM Plex Mono", monospace',
                     fontWeight: 600
                   }}
                 >
-                  Try Another Email
+                  Enter Reset Code
                 </Button>
               </Box>
             </CardContent>
