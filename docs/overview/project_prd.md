@@ -8,13 +8,13 @@
 
 ## 📋 Document Information
 
-|Field|Value|
-|---|---|
-|**Product Name**|Chronicle of Self - MVP|
-|**Version**|0.1 (Foundation)|
-|**Date**|November 12, 2025|
-|**Status**|MVP Specification|
-|**Purpose**|Academic Project + Portfolio Piece|
+| Field            | Value                                  |
+| ---------------- | -------------------------------------- |
+| **Product Name** | Chronicle of Self - MVP                |
+| **Version**      | 0.1 (MVP Implementation)               |
+| **Date**         | November 20, 2025                      |
+| **Status**       | MVP Implemented + Design Specification |
+| **Purpose**      | Academic Project + Portfolio Piece     |
 
 ---
 
@@ -47,6 +47,40 @@ This MVP explicitly REMOVES:
 **Technical Validation:** Prove the core loop (create habit → complete → earn XP → level up) is satisfying before adding complexity.
 
 **Portfolio Value:** A polished, functional foundation is better than an incomplete feature-rich mess.
+
+### Current MVP Implementation Snapshot (Nov 2025)
+
+**Implemented Features (v0.1):**
+
+- ✅ **Public experience & onboarding**
+  - Landing page with marketing sections, public navbar, and footer.
+  - Email/password login and registration flows (front-end via `AuthContext`).
+  - Archetype selection step with 4 archetypes and saved choice.
+- ✅ **Core habit system**
+  - Create, edit, and delete habits with name, category, difficulty, and schedule (daily or specific days).
+  - Daily completion tracking with per-habit history and 7-day view on each habit card.
+  - XP rewards per habit, including archetype–category bonus.
+- ✅ **Dashboard & habits management**
+  - Dashboard with level bar, XP progress, daily stats, and recent achievements.
+  - Habits page with category filters (All / Body / Mind / Spirit / Creative) and daily completion stats.
+- ✅ **Progress & achievements**
+  - Progress page with calendar heatmap, streak stats, and completion-rate visualizations.
+  - Leveling system with levels, titles, and XP-based progression.
+  - Basic achievement logic and recent-achievement display.
+- ✅ **UI, theming, and UX**
+  - Retro-inspired design using Material UI (MUI) components and custom styling.
+  - Light/dark theme toggle that persists across sessions.
+  - Separate public and authenticated navbars; responsive layout for mobile/desktop.
+
+### Deferred Features / Nice-to-Haves
+
+The following ideas remain **out of the v0.1 build** and are treated as **future work** (see later roadmap sections):
+
+- Item drops, inventory, and cosmetic customization.
+- In-app shop and virtual currency.
+- Quest/challenge system.
+- Social features (guilds, parties, leaderboards, collaborative habits).
+- Advanced analytics and AI-driven "Weekly Chronicle" insights.
 
 ---
 
@@ -351,7 +385,7 @@ USER ACTION                    SYSTEM RESPONSE
                                     schedule_type,
                                     is_active
                                   ) VALUES (...)
-                               
+
                                → Return habit object
                                → Close modal
                                → Refresh dashboard
@@ -374,7 +408,7 @@ USER ACTION                    SYSTEM RESPONSE
                                ┌─────────────────────────┐
                                │ BACKEND PROCESSING      │
                                └─────────────────────────┘
-                               
+
                                Step 1: Create Completion Record
                                ─────────────────────────────────
                                → Insert into completions table:
@@ -383,37 +417,37 @@ USER ACTION                    SYSTEM RESPONSE
                                     user_id,
                                     completed_at
                                   ) VALUES (...)
-                               
+
                                Step 2: Calculate XP
                                ────────────────────
                                → Get habit.base_xp (e.g., 20)
                                → Get user.archetype_id
                                → Get habit.category_id
                                → Check if match:
-                                  IF user.archetype.category_id 
+                                  IF user.archetype.category_id
                                      == habit.category_id
                                   THEN bonus = 1.25
                                   ELSE bonus = 1.0
-                               → Calculate: 
+                               → Calculate:
                                   earned_xp = base_xp × bonus
                                   earned_xp = 20 × 1.25 = 25 XP
-                               
+
                                Step 3: Update User XP
                                ──────────────────────
                                → Add earned_xp to user.total_xp
                                → user.total_xp += 25
-                               
+
                                Step 4: Check Level Up
                                ──────────────────────
                                → Calculate XP needed for next level:
                                   xp_required = 100 × (level^1.5)
                                → Compare user.total_xp vs xp_required
-                               
+
                                IF user.total_xp >= xp_required:
                                  → Increment user.level
                                  → Update user.title (based on level)
                                  → Set leveled_up = true
-                               
+
                                Step 5: Update Streak
                                ─────────────────────
                                → Get last completion date
@@ -423,7 +457,7 @@ USER ACTION                    SYSTEM RESPONSE
                                   IF older: reset streak to 1
                                → Update habit.current_streak
                                → Update habit.longest_streak if needed
-                               
+
                                Step 6: Check Achievements
                                ─────────────────────────
                                → Query achievement conditions:
@@ -434,7 +468,7 @@ USER ACTION                    SYSTEM RESPONSE
                                → If condition met:
                                   INSERT INTO user_achievements
                                   SET newly_unlocked = true
-                               
+
                                Step 7: Return Response
                                ───────────────────────
                                → Return JSON:
@@ -463,29 +497,29 @@ USER ACTION                    SYSTEM RESPONSE
                                ┌─────────────────────────┐
                                │ FRONTEND PROCESSING     │
                                └─────────────────────────┘
-                               
+
                                → Display XP toast:
                                   "+25 XP earned!"
                                   (2 seconds, auto-dismiss)
-                               
+
                                → IF level_up.leveled_up:
                                   → Show level-up modal:
                                      "LEVEL UP!"
                                      "You are now Level 5"
                                      "Steady Wanderer"
                                      (Manual dismiss)
-                               
+
                                → IF achievements_unlocked:
                                   → Show achievement toast:
                                      "🌟 Level 5 unlocked!"
                                      (3 seconds, auto-dismiss)
-                               
+
                                → Update dashboard:
                                   - Mark habit as completed (checkmark)
                                   - Update XP progress bar
                                   - Update level display
                                   - Update streak counter
-                               
+
                                → Update Progress page (if open):
                                   - Add today to calendar heatmap
                                   - Increment completion counter
@@ -505,15 +539,15 @@ SYSTEM CRON JOB                ACTION
 Runs every day at 12:00 AM
                                → Query all habits with:
                                   schedule_type = "daily"
-                               
+
                                → For each habit:
                                   - Set is_completed_today = false
                                   - Check if user completed yesterday:
                                     IF no completion yesterday
                                     THEN reset current_streak = 0
-                               
+
                                → Send push notification (future):
-                                  "New day, new habits! 
+                                  "New day, new habits!
                                    Your streak is at risk."
 ```
 
@@ -530,14 +564,14 @@ USER ACTION                    SYSTEM RESPONSE
 ─────────────────────────────────────────────────────────
 1. Navigate to Progress page
                                → Query last 90 days of completions:
-                                  SELECT 
+                                  SELECT
                                     DATE(completed_at) as date,
                                     COUNT(*) as count
                                   FROM completions
                                   WHERE user_id = ?
                                     AND completed_at >= NOW() - 90 days
                                   GROUP BY DATE(completed_at)
-                               
+
                                → Generate heatmap data:
                                   {
                                     "2025-11-10": 5,  // 5 habits
@@ -545,21 +579,21 @@ USER ACTION                    SYSTEM RESPONSE
                                     "2025-11-12": 6,
                                     ...
                                   }
-                               
+
                                → Query streak stats:
-                                  SELECT 
+                                  SELECT
                                     habit_name,
                                     current_streak,
                                     longest_streak
                                   FROM habits
                                   WHERE user_id = ?
                                     AND is_active = true
-                               
+
                                → Query completion rate (last 30 days):
                                   - Total possible completions
                                   - Actual completions
                                   - Calculate percentage
-                               
+
                                → Query achievements:
                                   SELECT * FROM user_achievements
                                   WHERE user_id = ?
@@ -569,14 +603,14 @@ USER ACTION                    SYSTEM RESPONSE
                                → Display calendar heatmap:
                                   - Color intensity = completion count
                                   - Darker = more habits completed
-                               
+
                                → Display streak stats:
                                   - List of habits with streaks
                                   - Highlight longest streaks
-                               
+
                                → Display completion chart:
                                   - Line graph of 30-day rate
-                               
+
                                → Display achievements:
                                   - Grid of unlocked badges
                                   - Grayed-out locked badges
@@ -607,15 +641,22 @@ USER ACTION                    SYSTEM RESPONSE
 
 ## 🚀 Technical Stack
 
-|Layer|Technology|
-|---|---|
-|**Frontend**|React 18 + TypeScript|
-|**Styling**|Tailwind CSS 3.4|
-|**State Management**|Context API / Zustand|
-|**Backend**|Node.js + Express|
-|**Database**|PostgreSQL 14+|
-|**Authentication**|JWT tokens|
-|**Hosting**|Vercel (Frontend) + Railway (Backend)|
+### Current MVP Implementation
+
+| Layer                 | Technology                                                 |
+| --------------------- | ---------------------------------------------------------- |
+| **Frontend**          | React 18 (Create React App), JavaScript                    |
+| **UI / Styling**      | Material UI (MUI) + retro-inspired custom styles           |
+| **Routing**           | React Router DOM v6                                        |
+| **State Management**  | React Context (Theme, Auth, Habits, Time Travel, Settings) |
+| **Persistence (MVP)** | localStorage + in-memory client state                      |
+
+### Planned Backend Stack (Post-MVP)
+
+- Node.js + Express REST API
+- PostgreSQL relational database
+- JWT-based authentication
+- Production hosting (e.g., Vercel for frontend, Railway or similar for backend)
 
 ---
 
@@ -833,20 +874,19 @@ USER ACTION                    SYSTEM RESPONSE
 
 ## 🔒 Out of Scope (MVP)
 
-### Not Included in MVP:
+### Not Included in MVP (Current Build):
 
-❌ Password reset via email (future)  
+❌ Backend email-based password reset (UI only, no real emails yet)  
 ❌ Profile picture upload  
-❌ Habit categories beyond the 4 core categories  
-❌ Custom habit colors/icons  
-❌ Habit notes/journal entries  
-❌ Habit reminders/notifications  
+❌ Custom habit colors/icons beyond the current retro theme  
+❌ Habit notes or journal-style entries  
+❌ Habit reminders/notifications (email, push, mobile)  
 ❌ Data export (CSV/JSON)  
-❌ Dark mode  
-❌ Multi-language support  
-❌ Habit templates  
-❌ Habit sharing  
-❌ API for third-party integrations
+❌ Multi-language/i18n support  
+❌ Habit templates and habit sharing  
+❌ Public API for third-party integrations
+
+These align with the **Phase 2+ roadmap** and are intentionally deferred to keep the MVP focused.
 
 ---
 
@@ -904,5 +944,3 @@ USER ACTION                    SYSTEM RESPONSE
 **XP Bonus:** +25% for Creative category habits  
 **Example Habits:** Art, music, writing, crafting  
 **Personality:** Imaginative, expressive, innovative
-
-
