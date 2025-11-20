@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
+import { 
   AppBar,
   Toolbar,
   Box,
@@ -8,7 +8,7 @@ import {
   Button,
   IconButton
 } from '@mui/material';
-import { SportsEsports, DarkMode, LightMode } from '@mui/icons-material';
+import { DarkMode, LightMode } from '@mui/icons-material';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const Navbar = () => {
@@ -26,28 +26,18 @@ const Navbar = () => {
       <Toolbar sx={{ maxWidth: '80rem', mx: 'auto', width: '100%', px: { xs: 2, sm: 3, lg: 4 } }}>
         {/* Logo */}
         <Link to="/" style={{ textDecoration: 'none' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Box
-            sx={{
-              bgcolor: 'primary.main',
-              p: 1,
-              borderRadius: 2,
-              border: '3px solid black',
-              boxShadow: '4px 4px 0px rgba(0,0,0,1)'
-            }}
-          >
-            <SportsEsports sx={{ fontSize: 24, color: 'text.primary' }} />
-          </Box>
-          <Typography
-            sx={{
-              fontFamily: 'VT323, monospace',
-              fontSize: '1.5rem',
-              color: 'text.primary',
-              letterSpacing: '0.05em'
-            }}
-          >
-            CHRONICLE OF SELF
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box component="img" src="/chronicle.png" alt="Chronicle emblem" sx={{ width: 36, height: 36 }} />
+            <Typography
+              sx={{
+                fontFamily: 'VT323, monospace',
+                fontSize: '1.5rem',
+                color: 'text.primary',
+                letterSpacing: '0.05em'
+              }}
+            >
+              CHRONICLE OF SELF
+            </Typography>
           </Box>
         </Link>
 

@@ -6,7 +6,6 @@ import {
   Box,
   Typography,
   Button,
-  IconButton,
   Menu,
   MenuItem,
   Divider,
@@ -14,7 +13,6 @@ import {
   Avatar
 } from '@mui/material';
 import {
-  SportsEsports,
   Person,
   Settings,
   DarkMode,
@@ -65,18 +63,8 @@ const UserNavbar = () => {
       <Toolbar sx={{ maxWidth: '80rem', mx: 'auto', width: '100%', px: { xs: 2, sm: 3, lg: 4 } }}>
         {/* Logo */}
         <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Box
-              sx={{
-                bgcolor: 'primary.main',
-                p: 1,
-                borderRadius: 2,
-                border: '3px solid black',
-                boxShadow: '4px 4px 0px rgba(0,0,0,1)'
-              }}
-            >
-              <SportsEsports sx={{ fontSize: 24, color: 'text.primary' }} />
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box component="img" src="/chronicle.png" alt="Chronicle emblem" sx={{ width: 36, height: 36 }} />
             <Typography
               sx={{
                 fontFamily: 'VT323, monospace',
@@ -85,7 +73,7 @@ const UserNavbar = () => {
                 letterSpacing: '0.05em'
               }}
             >
-              CHRONICLE
+              CHRONICLE OF SELF
             </Typography>
           </Box>
         </Link>
