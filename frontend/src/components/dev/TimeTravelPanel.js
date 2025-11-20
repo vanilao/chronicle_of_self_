@@ -18,7 +18,7 @@ import {
 import { useTimeTravel } from '../../contexts/TimeTravelContext';
 
 const TimeTravelPanel = () => {
-  const { currentDate, currentDateString, advanceDay, rewindDay, resetToToday } = useTimeTravel();
+  const { currentDate, currentDateString, advanceDay, rewindDay, resetDay } = useTimeTravel();
   const [isExpanded, setIsExpanded] = useState(true);
 
   const today = new Date();
@@ -140,7 +140,7 @@ const TimeTravelPanel = () => {
 
             <Tooltip title="Reset to Today" arrow>
               <IconButton
-                onClick={resetToToday}
+                onClick={resetDay}
                 size="small"
                 disabled={isToday}
                 sx={{

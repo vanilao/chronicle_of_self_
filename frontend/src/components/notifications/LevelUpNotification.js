@@ -13,6 +13,18 @@ import {
   FlashOn
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { keyframes } from '@emotion/react';
+
+const bounce = keyframes`
+  0%, 100% { transform: translateY(-2px); }
+  50% { transform: translateY(2px); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
 
 const LevelUpNotification = () => {
   const { levelUpNotification, dismissLevelUpNotification } = useAuth();
@@ -28,7 +40,7 @@ const LevelUpNotification = () => {
         top: 96,
         right: 16,
         zIndex: 50,
-        animation: 'bounce 1s infinite'
+        animation: `${bounce} 1s infinite`
       }}
     >
       <Paper
@@ -52,7 +64,7 @@ const LevelUpNotification = () => {
                 borderRadius: 2,
                 border: '3px solid black',
                 boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                animation: 'pulse 2s infinite'
+                animation: `${pulse} 2s infinite`
               }}
             >
               <EmojiEvents sx={{ fontSize: 40, color: 'white' }} />

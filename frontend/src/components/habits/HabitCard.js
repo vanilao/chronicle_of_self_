@@ -33,7 +33,7 @@ const HabitCard = ({ habit, onEdit }) => {
   };
 
   const Icon = categoryIcons[habit.category] || FitnessCenter;
-  const streak = getHabitStreak(habit);
+  const streak = getHabitStreak(habit.id);
 
   // Get last 7 days for weekly view
   const getLast7Days = () => {

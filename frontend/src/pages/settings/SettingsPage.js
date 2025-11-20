@@ -31,33 +31,19 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getUserStorageKey, getCurrentUserId } from '../../utils/userStorage';
 import { useNavigate } from 'react-router-dom';
 
+const DEFAULT_SETTINGS = {
+  notifications: true,
+  soundEffects: true,
+  dailyReminder: true,
+  reminderTime: '09:00'
+};
+
 const SettingsPage = () => {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const [settings, setSettings] = useState(() => {
-    // Load settings from localStorage on initial render
-    const savedSettings = localStorage.getItem('userSettings');
-    if (savedSettings) {
-      try {
-        return JSON.parse(savedSettings);
-      } catch {
-        return {
-          notifications: true,
-          soundEffects: true,
-          dailyReminder: true,
-          reminderTime: '09:00'
-        };
-      }
-    }
-    return {
-      notifications: true,
-      soundEffects: true,
-      dailyReminder: true,
-      reminderTime: '09:00'
-    };
-  });
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   const [successMessage, setSuccessMessage] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -69,9 +55,15 @@ const SettingsPage = () => {
       const settingsKey = getUserStorageKey(userId, 'userSettings');
       const storedSettings = localStorage.getItem(settingsKey);
       if (storedSettings) {
-        setSettings(JSON.parse(storedSettings));
+        try {
+          setSettings(JSON.parse(storedSettings));
+          return;
+        } catch {
+          // fall back to defaults below
+        }
       }
     }
+    setSettings(DEFAULT_SETTINGS);
   }, []);
 
   // Auto-save settings when they change
@@ -94,7 +86,6 @@ const SettingsPage = () => {
     const userId = getCurrentUserId();
     if (userId) {
       const settingsKey = getUserStorageKey(userId, 'userSettings');
-      // Save to localStorage
       localStorage.setItem(settingsKey, JSON.stringify(settings));
       setSuccessMessage('Settings saved successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);

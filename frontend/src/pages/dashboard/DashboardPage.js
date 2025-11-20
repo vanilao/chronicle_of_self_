@@ -27,7 +27,7 @@ import HabitCard from '../../components/habits/HabitCard';
 import CreateHabitModal from '../../components/habits/CreateHabitModal';
 import HabitFilters from '../../components/habits/HabitFilters';
 import { getRecentAchievements } from '../../utils/achievements';
-import { getTotalXPForLevel } from '../../utils/levelingSystem';
+import { calculateXPReward, getTotalXPForLevel } from '../../utils/levelingSystem';
 
 const DashboardPage = () => {
   const { habits, isLoading, getHabitStreak } = useHabits();
@@ -124,12 +124,18 @@ const DashboardPage = () => {
       return selectedDays.includes(todayKey);
     });
 
+  const getHabitXPReward = (habit) => {
+    const baseXP = habit.baseXp ?? habit.xpReward ?? 0;
+    const { finalXP } = calculateXPReward(baseXP, habit.category, user?.archetypeCategory);
+    return finalXP;
+  };
+
   const getTodayStats = () => {
     const completedToday = habits.filter(h => h.completionHistory?.[todayIso]).length;
     const totalHabits = habits.length;
     const xpEarnedToday = habits
       .filter(h => h.completionHistory?.[todayIso])
-      .reduce((sum, h) => sum + h.xpReward, 0);
+      .reduce((sum, h) => sum + getHabitXPReward(h), 0);
 
     return { completedToday, totalHabits, xpEarnedToday };
   };

@@ -15,7 +15,13 @@ export const getUserSpecificData = (userId, key) => {
 };
 
 export const clearUserData = (userId) => {
-  const keys = ['habits', 'habitCompletions', 'userSettings', 'achievements'];
+  const keys = [
+    'habits',
+    'habitCompletions',
+    'userSettings',
+    'achievements',
+    'timeTravelOffsetDays'
+  ];
   keys.forEach(key => {
     const storageKey = getUserStorageKey(userId, key);
     localStorage.removeItem(storageKey);
