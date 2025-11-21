@@ -7,27 +7,25 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  IconButton,
-  Grid,
-  Chip,
-  Switch,
-  FormControlLabel,
-  ToggleButton,
-  ToggleButtonGroup
+  IconButton
 } from '@mui/material';
 import {
   Close,
-  FitnessCenter,
-  MenuBook,
-  SelfImprovement,
-  Palette,
   FlashOn
 } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useAuth } from '../../contexts/AuthContext';
+import {
+  CategorySelector,
+  DifficultySelector,
+  XPRewardPreview,
+  FrequencySelector,
+  NotificationSettings
+} from './form';
 
 const defaultFormState = {
   name: '',
+  description: '',
   category: 'Body',
   difficulty: 'Medium',
   frequencyType: 'Daily',
@@ -62,13 +60,6 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
       setFormData(defaultFormState);
     }
   }, [isOpen, habitToEdit]);
-
-  const categories = [
-    { name: 'Body', icon: FitnessCenter },
-    { name: 'Mind', icon: MenuBook },
-    { name: 'Spirit', icon: SelfImprovement },
-    { name: 'Creative', icon: Palette }
-  ];
 
   const difficulties = [
     { name: 'Easy', xp: 10 },
@@ -112,6 +103,22 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
     }));
   };
 
+  const handleCategoryChange = (category) => {
+    setFormData(prev => ({ ...prev, category }));
+  };
+
+  const handleDifficultyChange = (difficulty) => {
+    setFormData(prev => ({ ...prev, difficulty }));
+  };
+
+  const handleFrequencyTypeChange = (frequencyType) => {
+    setFormData(prev => ({
+      ...prev,
+      frequencyType,
+      frequency: frequencyType === 'Daily' ? 'Daily' : 'Weekly'
+    }));
+  };
+
   const toggleDaySelection = (dayKey) => {
     setFormData(prev => {
       const isSelected = prev.selectedDays.includes(dayKey);
@@ -126,15 +133,19 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
     });
   };
 
-  const weekdayOptions = [
-    { key: 'Mon', label: 'Mon' },
-    { key: 'Tue', label: 'Tue' },
-    { key: 'Wed', label: 'Wed' },
-    { key: 'Thu', label: 'Thu' },
-    { key: 'Fri', label: 'Fri' },
-    { key: 'Sat', label: 'Sat' },
-    { key: 'Sun', label: 'Sun' }
-  ];
+  const handleNotificationToggle = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      notificationsEnabled: e.target.checked
+    }));
+  };
+
+  const handleNotificationTimeChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      notificationTime: e.target.value
+    }));
+  };
 
   return (
     <Dialog
@@ -212,168 +223,8 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
               />
             </Box>
 
-            {/* Category Selection */}
+            {/* Description Field */}
             <Box>
-              <Typography
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  color: 'text.primary',
-                  mb: 1.5
-                }}
-              >
-                CATEGORY
-              </Typography>
-              <Grid container spacing={1.5}>
-                {categories.map((cat) => {
-                  const Icon = cat.icon;
-                  const isSelected = formData.category === cat.name;
-                  const hasBonus = userArchetypeCategory && cat.name === userArchetypeCategory;
-
-                  return (
-                    <Grid size={{ xs: 6, md: 3 }} key={cat.name}>
-                      <Box
-                        onClick={() => setFormData({ ...formData, category: cat.name })}
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          border: '3px solid black',
-                          boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                          bgcolor: 'primary.main',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          transform: isSelected ? 'scale(1.05)' : 'scale(1)',
-                          outline: isSelected ? '4px solid' : 'none',
-                          outlineColor: 'text.primary',
-                          opacity: isSelected ? 1 : 0.7,
-                          '&:hover': {
-                            opacity: 1
-                          }
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                          <Icon sx={{ fontSize: 32, color: 'text.primary' }} />
-                          <Typography
-                            sx={{
-                              fontFamily: '"IBM Plex Mono", monospace',
-                              fontSize: '0.875rem',
-                              fontWeight: 700,
-                              color: 'text.primary'
-                            }}
-                          >
-                            {cat.name}
-                          </Typography>
-                          {hasBonus && (
-                            <Chip
-                              label="+25% XP"
-                              size="small"
-                              sx={{
-                                fontFamily: '"IBM Plex Mono", monospace',
-                                fontSize: '0.625rem',
-                                bgcolor: 'background.default',
-                                border: '1px solid black',
-                                height: 20
-                              }}
-                            />
-                          )}
-                        </Box>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-              {userArchetypeCategory && (
-                <Typography
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontSize: '0.75rem',
-                    color: 'text.secondary',
-                    mt: 1
-                  }}
-                >
-                  {bonusActive
-                    ? `Matching your ${user?.archetype || 'archetype'}! +25% XP applied.`
-                    : `Choose ${userArchetypeCategory} to earn +25% XP with your ${user?.archetype || 'archetype'}.`}
-                </Typography>
-              )}
-            </Box>
-
-            {/* Difficulty Selection */}
-            <Box>
-              <Typography
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  color: 'text.primary',
-                  mb: 1.5
-                }}
-              >
-                DIFFICULTY
-              </Typography>
-              <Grid container spacing={1.5}>
-                {difficulties.map((diff) => {
-                  const isSelected = formData.difficulty === diff.name;
-
-                  return (
-                    <Grid size={{ xs: 4 }} key={diff.name}>
-                      <Box
-                        onClick={() => setFormData({ ...formData, difficulty: diff.name })}
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          border: '3px solid black',
-                          boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                          bgcolor: isSelected ? 'secondary.main' : 'background.default',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          transform: isSelected ? 'scale(1.05)' : 'scale(1)',
-                          outline: isSelected ? '4px solid' : 'none',
-                          outlineColor: 'text.primary',
-                          opacity: isSelected ? 1 : 0.7,
-                          '&:hover': {
-                            opacity: 1
-                          }
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontFamily: '"IBM Plex Mono", monospace',
-                            fontWeight: 700,
-                            fontSize: '0.875rem',
-                            color: 'text.primary',
-                            mb: 0.5
-                          }}
-                        >
-                          {diff.name.toUpperCase()}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontFamily: '"IBM Plex Mono", monospace',
-                            fontSize: '0.75rem',
-                            color: 'text.secondary'
-                          }}
-                        >
-                          +{diff.xp} XP
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
-
-            {/* XP Preview */}
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                border: '3px solid black',
-                boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                bgcolor: 'background.default'
-              }}
-            >
               <Typography
                 sx={{
                   fontFamily: '"IBM Plex Mono", monospace',
@@ -383,162 +234,71 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
                   mb: 1
                 }}
               >
-                XP REWARD
+                DESCRIPTION (OPTIONAL)
               </Typography>
-              <Box className="space-y-1">
-                <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', color: 'text.secondary' }}>
-                  Base XP: {baseXp}
-                </Typography>
-                <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', color: 'text.secondary' }}>
-                  Class Bonus: {userArchetypeCategory
-                    ? bonusActive ? '+25% (matching archetype)' : 'No bonus applied'
-                    : 'Select an archetype to unlock class bonuses'}
-                </Typography>
-                <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '1rem', fontWeight: 700, color: 'text.primary' }}>
-                  Total Reward: +{xpReward} XP
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Frequency */}
-            <Box>
-              <Typography
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  color: 'text.primary',
-                  mb: 1.5
-                }}
-              >
-                FREQUENCY
-              </Typography>
-              <ToggleButtonGroup
-                value={formData.frequencyType}
-                exclusive
-                onChange={(e, value) => value && setFormData(prev => ({
-                  ...prev,
-                  frequencyType: value,
-                  frequency: value === 'Daily' ? 'Daily' : 'Weekly'
-                }))}
-                fullWidth
-                sx={{ mb: 2 }}
-              >
-                <ToggleButton
-                  value="Daily"
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontWeight: 700,
-                    border: '3px solid black',
-                    '&.Mui-selected': {
-                      bgcolor: 'secondary.main',
-                      '&:hover': {
-                        bgcolor: 'secondary.main'
-                      }
-                    }
-                  }}
-                >
-                  DAILY
-                </ToggleButton>
-                <ToggleButton
-                  value="Specific Days"
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontWeight: 700,
-                    border: '3px solid black',
-                    '&.Mui-selected': {
-                      bgcolor: 'secondary.main',
-                      '&:hover': {
-                        bgcolor: 'secondary.main'
-                      }
-                    }
-                  }}
-                >
-                  SPECIFIC DAYS
-                </ToggleButton>
-              </ToggleButtonGroup>
-
-              {formData.frequencyType === 'Specific Days' && (
-                <Box>
-                  <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', color: 'text.secondary', mb: 1 }}>
-                    Select the days you want this habit to run.
-                  </Typography>
-                  <Grid container spacing={1}>
-                    {weekdayOptions.map(day => {
-                      const isSelected = formData.selectedDays.includes(day.key);
-                      return (
-                        <Grid size={{ xs: 3, sm: 12 / 7 }} key={day.key}>
-                          <Button
-                            onClick={() => toggleDaySelection(day.key)}
-                            fullWidth
-                            variant={isSelected ? "contained" : "outlined"}
-                            sx={{
-                              fontFamily: '"IBM Plex Mono", monospace',
-                              fontSize: '0.75rem',
-                              py: 1,
-                              border: '3px solid black',
-                              bgcolor: isSelected ? 'primary.main' : 'background.default',
-                              color: 'text.primary',
-                              '&:hover': {
-                                bgcolor: isSelected ? 'primary.main' : 'background.default'
-                              }
-                            }}
-                          >
-                            {day.label}
-                          </Button>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-                </Box>
-              )}
-            </Box>
-
-            {/* Notifications */}
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                border: '3px solid black',
-                boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                bgcolor: 'background.default'
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                <Box>
-                  <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.875rem', color: 'text.primary' }}>
-                    NOTIFICATIONS (COMING SOON)
-                  </Typography>
-                  <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', color: 'text.secondary' }}>
-                    Set a reminder time now; push alerts will arrive in a future update.
-                  </Typography>
-                </Box>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      name="notificationsEnabled"
-                      checked={formData.notificationsEnabled}
-                      onChange={handleChange}
-                    />
-                  }
-                  label=""
-                />
-              </Box>
-
               <TextField
-                id="notificationTime"
-                name="notificationTime"
-                type="time"
-                label="REMINDER TIME"
+                id="description"
+                name="description"
                 fullWidth
-                value={formData.notificationTime}
+                multiline
+                rows={3}
+                value={formData.description || ''}
                 onChange={handleChange}
-                disabled={!formData.notificationsEnabled}
-                InputLabelProps={{
-                  sx: { fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.75rem' }
+                placeholder="Why is this habit important to you? What's your motivation?"
+                inputProps={{
+                  maxLength: 200
+                }}
+                helperText={`${(formData.description || '').length}/200 characters`}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    fontFamily: '"IBM Plex Mono", monospace',
+                    '& textarea': {
+                      resize: 'none'
+                    }
+                  }
                 }}
               />
             </Box>
+
+            {/* Category Selection */}
+            <CategorySelector
+              selectedCategory={formData.category}
+              onCategoryChange={handleCategoryChange}
+              userArchetypeCategory={userArchetypeCategory}
+              userArchetype={user?.archetype}
+            />
+
+            {/* Difficulty Selection */}
+            <DifficultySelector
+              selectedDifficulty={formData.difficulty}
+              onDifficultyChange={handleDifficultyChange}
+            />
+
+            {/* XP Preview */}
+            <XPRewardPreview
+              baseXp={baseXp}
+              bonusMultiplier={bonusMultiplier}
+              xpReward={xpReward}
+              userArchetypeCategory={userArchetypeCategory}
+              selectedCategory={formData.category}
+              userArchetype={user?.archetype}
+            />
+
+            {/* Frequency */}
+            <FrequencySelector
+              frequencyType={formData.frequencyType}
+              selectedDays={formData.selectedDays}
+              onFrequencyTypeChange={handleFrequencyTypeChange}
+              onDayToggle={toggleDaySelection}
+            />
+
+            {/* Notifications */}
+            <NotificationSettings
+              notificationsEnabled={formData.notificationsEnabled}
+              notificationTime={formData.notificationTime}
+              onNotificationToggle={handleNotificationToggle}
+              onTimeChange={handleNotificationTimeChange}
+            />
 
             {/* Submit Button */}
             <Button

@@ -9,30 +9,22 @@ import {
   Grid
 } from '@mui/material';
 import {
-  FitnessCenter,
-  MenuBook,
-  SelfImprovement,
-  Palette,
   LocalFireDepartment,
   Delete,
   Edit,
   Check
 } from '@mui/icons-material';
-import { useHabits } from '../../contexts/HabitsContext';
-import { useTimeTravel } from '../../contexts/TimeTravelContext';
+import { useHabits } from '../../../contexts/HabitsContext';
+import { useTimeTravel } from '../../../contexts/TimeTravelContext';
+import { getCategoryConfig } from '../../../config/categories';
 
 const HabitCard = ({ habit, onEdit }) => {
   const { toggleHabitCompletion, deleteHabit, getHabitStreak } = useHabits();
   const { currentDate, currentDateString } = useTimeTravel();
 
-  const categoryIcons = {
-    Body: FitnessCenter,
-    Mind: MenuBook,
-    Spirit: SelfImprovement,
-    Creative: Palette
-  };
-
-  const Icon = categoryIcons[habit.category] || FitnessCenter;
+  // Get category configuration
+  const categoryConfig = getCategoryConfig(habit.category);
+  const Icon = categoryConfig.icon;
   const streak = getHabitStreak(habit.id);
 
   // Get last 7 days for weekly view
@@ -90,18 +82,31 @@ const HabitCard = ({ habit, onEdit }) => {
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, flex: 1 }}>
             <Box
               sx={{
-                bgcolor: 'primary.main',
+                bgcolor: categoryConfig.bgColor,
                 p: 1.5,
                 borderRadius: 2,
-                border: '3px solid black',
-                boxShadow: '4px 4px 0px rgba(0,0,0,1)'
+                border: `3px solid ${categoryConfig.borderColor}`,
+                boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(2px)',
+                  boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+                  bgcolor: categoryConfig.hoverBg
+                }
               }}
             >
-              <Icon sx={{ fontSize: 24, color: 'text.primary' }} />
+              <Icon 
+                sx={{ 
+                  fontSize: 24, 
+                  color: categoryConfig.color,
+                  transition: 'all 0.2s ease-in-out'
+                }} 
+              />
             </Box>
 
             <Box sx={{ flex: 1 }}>
               <Typography
+                variant="h6"
                 sx={{
                   fontFamily: '"IBM Plex Mono", monospace',
                   fontWeight: 700,
@@ -113,6 +118,26 @@ const HabitCard = ({ habit, onEdit }) => {
                 {habit.name}
               </Typography>
 
+              {/* Description */}
+              {habit.description && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontFamily: '"IBM Plex Mono", monospace',
+                    color: 'text.secondary',
+                    fontSize: '0.875rem',
+                    mb: 2,
+                    lineHeight: 1.4,
+                    fontStyle: 'italic'
+                  }}
+                >
+                  {habit.description.length > 100 
+                    ? `${habit.description.substring(0, 100)}...`
+                    : habit.description
+                  }
+                </Typography>
+              )}
+
               <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
                 {/* Category Badge */}
                 <Chip
@@ -121,9 +146,16 @@ const HabitCard = ({ habit, onEdit }) => {
                   sx={{
                     fontFamily: '"IBM Plex Mono", monospace',
                     fontSize: '0.75rem',
-                    bgcolor: 'background.default',
-                    border: '2px solid black',
-                    borderRadius: 1
+                    bgcolor: categoryConfig.bgColor,
+                    color: categoryConfig.color,
+                    border: `2px solid ${categoryConfig.borderColor}`,
+                    borderRadius: 1,
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      bgcolor: categoryConfig.hoverBg,
+                      transform: 'scale(1.05)'
+                    }
                   }}
                 />
 

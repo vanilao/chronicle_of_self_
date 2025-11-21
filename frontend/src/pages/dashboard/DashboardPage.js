@@ -8,10 +8,11 @@ import {
 import { Add } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTimeTravel } from '../../contexts/TimeTravelContext';
-import HabitCard from '../../components/habits/HabitCard';
+import { usePersistedFilters } from '../../hooks/usePersistedFilters';
+import { usePersistedSort } from '../../hooks/usePersistedSort';
+import HabitFilters from '../../components/habits/filters/HabitFilters';
+import HabitCard from '../../components/habits/ui/HabitCard';
 import CreateHabitModal from '../../components/habits/CreateHabitModal';
-import HabitFilters from '../../components/habits/HabitFilters';
 import WelcomeHeader from '../../components/dashboard/WelcomeHeader';
 import StatsGrid from '../../components/dashboard/StatsGrid';
 import EmptyState from '../../components/dashboard/EmptyState';
@@ -22,11 +23,20 @@ import { calculateXPReward, getTotalXPForLevel } from '../../utils/levelingSyste
 const DashboardPage = () => {
   const { habits, isLoading, getHabitStreak } = useHabits();
   const { user } = useAuth();
-  const { currentDate, currentDateString } = useTimeTravel();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
-  const [filterCategory, setFilterCategory] = useState('All');
+  
+  // Use persisted filters and sort
+  const { filters, rawFilters, updateFilter } = usePersistedFilters('dashboard');
+  const { sortConfig, updateSort, getSortedHabits } = usePersistedSort('dashboard');
 
+  // Get current date string for today's stats
+  const getCurrentDateString = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+  
+  const currentDateString = getCurrentDateString();
+  const currentDate = new Date();
   const todayIso = currentDateString;
 
 
@@ -88,10 +98,45 @@ const DashboardPage = () => {
     return getRecentAchievements(achievementStats, 3);
   }, [achievementStats]);
 
-  const categories = ['All', 'Body', 'Mind', 'Spirit', 'Creative'];
+  // Advanced filtering logic for dashboard
+  const filteredHabits = useMemo(() => {
+    return habits.filter(habit => {
+      // Category filter
+      if (filters.category !== 'All' && habit.category !== filters.category) {
+        return false;
+      }
+      
+      // Difficulty filter
+      if (filters.difficulty !== 'All' && habit.difficulty !== filters.difficulty) {
+        return false;
+      }
+      
+      // Frequency filter
+      if (filters.frequency !== 'All') {
+        const habitFrequency = habit.frequencyType || 'Daily';
+        if (habitFrequency !== filters.frequency) {
+          return false;
+        }
+      }
+      
+      // Search filter (uses debounced value)
+      if (filters.searchTerm) {
+        const searchLower = filters.searchTerm.toLowerCase();
+        return habit.name.toLowerCase().includes(searchLower) ||
+               habit.category.toLowerCase().includes(searchLower) ||
+               habit.difficulty?.toLowerCase().includes(searchLower);
+      }
+      
+      return true;
+    });
+  }, [habits, filters]);
 
-  const todaysHabits = habits
-    .filter(habit => filterCategory === 'All' ? true : habit.category === filterCategory)
+  // Apply sorting to filtered habits
+  const sortedAndFilteredHabits = useMemo(() => {
+    return getSortedHabits(filteredHabits);
+  }, [filteredHabits, getSortedHabits]);
+
+  const todaysHabits = sortedAndFilteredHabits
     .filter(habit => {
       const frequencyType = habit.frequencyType || 'Daily';
       if (frequencyType !== 'Specific Days') {
@@ -142,9 +187,19 @@ const DashboardPage = () => {
         {/* Filters */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
           <HabitFilters
-            categories={categories}
-            selectedCategory={filterCategory}
-            onCategoryChange={setFilterCategory}
+            selectedCategory={rawFilters.category}
+            onCategoryChange={(value) => updateFilter('category', value)}
+            selectedDifficulty={rawFilters.difficulty}
+            onDifficultyChange={(value) => updateFilter('difficulty', value)}
+            selectedFrequency={rawFilters.frequency}
+            onFrequencyChange={(value) => updateFilter('frequency', value)}
+            searchTerm={rawFilters.searchTerm}
+            onSearchChange={(value) => updateFilter('searchTerm', value)}
+            sortBy={sortConfig.sortBy}
+            onSortChange={updateSort}
+            sortOrder={sortConfig.sortOrder}
+            onSortOrderChange={(order) => updateSort(sortConfig.sortBy)}
+            compact={true}
           />
           <Button
             onClick={() => setIsModalOpen(true)}

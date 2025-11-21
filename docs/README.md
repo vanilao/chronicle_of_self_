@@ -136,10 +136,20 @@ chronicle-of-self/
 
 ## 📚 Documentation
 
+### Core Documentation
+
 - **[Product Requirements](docs/overview/project_prd.md)** - Detailed feature specifications
 - **[Style Guide](docs/styles/style-guide.md)** - Design tokens and color palettes
 - **[TODO List](docs/planning/TODOLIST.md)** - Current development roadmap
 - **[Project Status](docs/status/PROJECT_STATUS.md)** - Progress tracking
+
+### Feature Documentation
+
+- **[Habits System](docs/features/habits/README.md)** - Complete habits system documentation
+  - [Habit Creation Flow](docs/features/habits/habit-creation-flow.md)
+  - [Component Guide](docs/features/habits/component-guide.md)
+  - [API Integration](docs/features/habits/api-integration.md)
+- **[Sound Effects](docs/features/sound effects/README.md)** - Audio implementation guide
 
 ## 🐛 Known Issues
 

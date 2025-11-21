@@ -1,34 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
   Button,
+  CircularProgress,
   Card,
-  CardContent,
-  CircularProgress
+  CardContent
 } from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
-import { useTimeTravel } from '../../contexts/TimeTravelContext';
+import { usePersistedFilters } from '../../hooks/usePersistedFilters';
+import { usePersistedSort } from '../../hooks/usePersistedSort';
+import HabitFilters from '../../components/habits/filters/HabitFilters';
+import HabitCard from '../../components/habits/ui/HabitCard';
 import CreateHabitModal from '../../components/habits/CreateHabitModal';
-import HabitCard from '../../components/habits/HabitCard';
-import TodayStats from '../../components/habits/TodayStats';
-import CategoryFilter from '../../components/habits/CategoryFilter';
-import HabitsEmptyState from '../../components/habits/HabitsEmptyState';
+import TodayStats from '../../components/habits/stats/TodayStats';
+import HabitsEmptyState from '../../components/habits/ui/HabitsEmptyState';
 
 const HabitsPage = () => {
   const { habits, isLoading } = useHabits();
-  const { currentDateString } = useTimeTravel();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
-  const [filterCategory, setFilterCategory] = useState('All');
+  
+  // Use persisted filters and sort
+  const { filters, rawFilters, updateFilter, clearFilters, hasActiveFilters } = usePersistedFilters('habits');
+  const { sortConfig, updateSort, getSortedHabits } = usePersistedSort('habits');
 
-  const categories = ['All', 'Body', 'Mind', 'Spirit', 'Creative'];
+  // Get current date string for today's stats
+  const getCurrentDateString = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+  
+  const currentDateString = getCurrentDateString();
 
-  // Filter habits by category
-  const filteredHabits = filterCategory === 'All'
-    ? habits
-    : habits.filter(h => h.category === filterCategory);
+  // Advanced filtering logic
+  const filteredHabits = useMemo(() => {
+    return habits.filter(habit => {
+      // Category filter
+      if (filters.category !== 'All' && habit.category !== filters.category) {
+        return false;
+      }
+      
+      // Difficulty filter
+      if (filters.difficulty !== 'All' && habit.difficulty !== filters.difficulty) {
+        return false;
+      }
+      
+      // Frequency filter
+      if (filters.frequency !== 'All') {
+        const habitFrequency = habit.frequencyType || 'Daily';
+        if (habitFrequency !== filters.frequency) {
+          return false;
+        }
+      }
+      
+      // Search filter (uses debounced value)
+      if (filters.searchTerm) {
+        const searchLower = filters.searchTerm.toLowerCase();
+        return habit.name.toLowerCase().includes(searchLower) ||
+               habit.category.toLowerCase().includes(searchLower) ||
+               habit.difficulty?.toLowerCase().includes(searchLower);
+      }
+      
+      return true;
+    });
+  }, [habits, filters]);
+
+  // Apply sorting to filtered habits
+  const sortedAndFilteredHabits = useMemo(() => {
+    return getSortedHabits(filteredHabits);
+  }, [filteredHabits, getSortedHabits]);
 
   // Calculate today's stats
   const getTodayStats = () => {
@@ -81,13 +122,23 @@ const HabitsPage = () => {
       {/* Today's Stats */}
       <TodayStats stats={stats} />
 
-      {/* Category Filter */}
+      {/* Habit Filters */}
       {habits.length > 0 && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={filterCategory}
-            onCategoryChange={setFilterCategory}
+          <HabitFilters
+            selectedCategory={rawFilters.category}
+            onCategoryChange={(value) => updateFilter('category', value)}
+            selectedDifficulty={rawFilters.difficulty}
+            onDifficultyChange={(value) => updateFilter('difficulty', value)}
+            selectedFrequency={rawFilters.frequency}
+            onFrequencyChange={(value) => updateFilter('frequency', value)}
+            searchTerm={rawFilters.searchTerm}
+            onSearchChange={(value) => updateFilter('searchTerm', value)}
+            sortBy={sortConfig.sortBy}
+            onSortChange={updateSort}
+            sortOrder={sortConfig.sortOrder}
+            onSortOrderChange={(order) => updateSort(sortConfig.sortBy)}
+            compact={true}
           />
           <Button
             onClick={() => setIsModalOpen(true)}
@@ -102,9 +153,9 @@ const HabitsPage = () => {
       )}
 
       {/* Habits List */}
-      {filteredHabits.length > 0 ? (
+      {sortedAndFilteredHabits.length > 0 ? (
         <Box className="space-y-4">
-          {filteredHabits.map((habit) => (
+          {sortedAndFilteredHabits.map((habit) => (
             <HabitCard
               key={habit.id}
               habit={habit}
@@ -121,11 +172,31 @@ const HabitsPage = () => {
             <Typography
               sx={{
                 fontFamily: '"IBM Plex Mono", monospace',
-                color: 'text.secondary'
+                color: 'text.secondary',
+                mb: 2
               }}
             >
-              No habits in this category yet.
+              {hasActiveFilters
+                ? 'No habits match your current filters.'
+                : 'No habits in this category yet.'}
             </Typography>
+            {hasActiveFilters && (
+              <Button
+                onClick={clearFilters}
+                variant="outlined"
+                sx={{
+                  fontFamily: '"IBM Plex Mono", monospace',
+                  border: '3px solid black',
+                  borderRadius: '8px',
+                  boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+                  '&:hover': {
+                    boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+                  }
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (

@@ -1,7 +1,9 @@
 import React from 'react';
 import {
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  Chip,
+  Box
 } from '@mui/material';
 
 const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
@@ -14,8 +16,8 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
     >
       {categories.map((category) => (
         <ToggleButton
-          key={category}
-          value={category}
+          key={category.name}
+          value={category.name}
           sx={{
             px: 2,
             py: 1,
@@ -25,12 +27,13 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
             border: '3px solid black',
             borderRadius: '8px !important',
             boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-            bgcolor: selectedCategory === category ? 'text.primary' : 'background.default',
-            color: selectedCategory === category ? 'background.default' : 'text.primary',
+            bgcolor: selectedCategory === category.name ? 'text.primary' : 'background.default',
+            color: selectedCategory === category.name ? 'background.default' : 'text.primary',
+            opacity: selectedCategory === category.name ? 1 : 0.7,
             '&:hover': {
               boxShadow: '2px 2px 0px rgba(0,0,0,1)',
               transform: 'translate(2px, 2px)',
-              bgcolor: selectedCategory === category ? 'text.primary' : 'background.default',
+              bgcolor: selectedCategory === category.name ? 'text.primary' : 'background.default',
             },
             '&:active': {
               boxShadow: '0px 0px 0px rgba(0,0,0,1)',
@@ -51,7 +54,23 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
             }
           }}
         >
-          {category}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <span>{category.name}</span>
+            <Chip
+              label={category.count}
+              size="small"
+              sx={{
+                fontFamily: '"IBM Plex Mono", monospace',
+                fontSize: '0.625rem',
+                height: 18,
+                minWidth: 20,
+                bgcolor: selectedCategory === category.name ? 'background.default' : 'text.primary',
+                color: selectedCategory === category.name ? 'text.primary' : 'background.default',
+                border: '1px solid currentColor',
+                fontWeight: 700
+              }}
+            />
+          </Box>
         </ToggleButton>
       ))}
     </ToggleButtonGroup>
