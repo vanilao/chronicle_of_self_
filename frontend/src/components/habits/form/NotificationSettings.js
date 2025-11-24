@@ -10,20 +10,23 @@ const NotificationSettings = ({
   return (
     <Box
       sx={{
-        p: 2,
-        borderRadius: 2,
-        border: '3px solid black',
-        boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-        bgcolor: 'background.default'
+        p: 1.5,
+        borderRadius: 1,
+        border: '1px solid rgba(0, 0, 0, 0.23)',
+        bgcolor: 'background.paper',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center'
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Box>
-          <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.875rem', color: 'text.primary' }}>
+          <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.75rem', color: 'text.primary' }}>
             NOTIFICATIONS (COMING SOON)
           </Typography>
-          <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', color: 'text.secondary' }}>
-            Set a reminder time now; push alerts will arrive in a future update.
+          <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'text.secondary' }}>
+            Set reminder time; alerts in future update.
           </Typography>
         </Box>
         <FormControlLabel
@@ -31,6 +34,7 @@ const NotificationSettings = ({
             <Switch
               checked={notificationsEnabled}
               onChange={onNotificationToggle}
+              size="small"
             />
           }
           label=""
@@ -44,8 +48,27 @@ const NotificationSettings = ({
         value={notificationTime}
         onChange={onTimeChange}
         disabled={!notificationsEnabled}
+        size="small"
         InputLabelProps={{
           sx: { fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.75rem' }
+        }}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            fontFamily: '"IBM Plex Mono", monospace',
+            fontSize: '0.875rem',
+            '& fieldset': {
+              borderColor: 'rgba(0, 0, 0, 0.23)',
+              borderWidth: '1px'
+            },
+            '&:hover fieldset': {
+              borderColor: 'rgba(0, 0, 0, 0.87)',
+              borderWidth: '1px'
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'primary.main',
+              borderWidth: '1px'
+            }
+          }
         }}
       />
     </Box>

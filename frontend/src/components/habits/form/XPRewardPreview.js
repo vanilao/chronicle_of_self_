@@ -7,35 +7,38 @@ const XPRewardPreview = ({ baseXp, bonusMultiplier, xpReward, userArchetypeCateg
   return (
     <Box
       sx={{
-        p: 2,
-        borderRadius: 2,
-        border: '3px solid black',
-        boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-        bgcolor: 'background.default'
+        p: 1.5,
+        borderRadius: 1,
+        border: '1px solid rgba(0, 0, 0, 0.23)',
+        bgcolor: 'background.paper',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center'
       }}
     >
       <Typography
         sx={{
           fontFamily: '"IBM Plex Mono", monospace',
           fontWeight: 700,
-          fontSize: '0.875rem',
+          fontSize: '0.75rem',
           color: 'text.primary',
-          mb: 1
+          mb: 0.75
         }}
       >
         XP REWARD
       </Typography>
-      <Box className="space-y-1">
-        <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', color: 'text.secondary' }}>
+      <Box className="space-y-0.5">
+        <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'text.secondary' }}>
           Base XP: {baseXp}
         </Typography>
-        <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.75rem', color: 'text.secondary' }}>
+        <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.625rem', color: 'text.secondary' }}>
           Class Bonus: {userArchetypeCategory
-            ? bonusActive ? '+25% (matching archetype)' : 'No bonus applied'
-            : 'Select an archetype to unlock class bonuses'}
+            ? bonusActive ? '+25% (matching)' : 'No bonus'
+            : 'Select archetype for bonuses'}
         </Typography>
-        <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '1rem', fontWeight: 700, color: 'text.primary' }}>
-          Total Reward: +{xpReward} XP
+        <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.875rem', fontWeight: 700, color: 'text.primary' }}>
+          Total: +{xpReward} XP
         </Typography>
       </Box>
     </Box>

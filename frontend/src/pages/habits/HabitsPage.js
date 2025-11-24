@@ -11,6 +11,7 @@ import { Add } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { usePersistedFilters } from '../../hooks/usePersistedFilters';
 import { usePersistedSort } from '../../hooks/usePersistedSort';
+import { getCompletionCount } from '../../utils/habitHelpers';
 import HabitFilters from '../../components/habits/filters/HabitFilters';
 import HabitCard from '../../components/habits/ui/HabitCard';
 import CreateHabitModal from '../../components/habits/CreateHabitModal';
@@ -21,6 +22,8 @@ const HabitsPage = () => {
   const { habits, isLoading } = useHabits();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
+  
+  console.log('HabitsPage state:', { isModalOpen, habitToEdit });
   
   // Use persisted filters and sort
   const { filters, rawFilters, updateFilter, clearFilters, hasActiveFilters } = usePersistedFilters('habits');
@@ -71,13 +74,22 @@ const HabitsPage = () => {
     return getSortedHabits(filteredHabits);
   }, [filteredHabits, getSortedHabits]);
 
-  // Calculate today's stats
+  // Calculate today's stats using helper
   const getTodayStats = () => {
-    const completedToday = habits.filter(h => h.completionHistory?.[currentDateString]).length;
+    let completedToday = 0;
+    let xpEarnedToday = 0;
+
+    habits.forEach(habit => {
+      const completionCount = getCompletionCount(habit.completionHistory, currentDateString);
+      const targetCompletions = habit.targetCompletions || 1;
+
+      if (completionCount >= targetCompletions) {
+        completedToday++;
+        xpEarnedToday += habit.xpReward || 0;
+      }
+    });
+
     const totalHabits = habits.length;
-    const xpEarnedToday = habits
-      .filter(h => h.completionHistory?.[currentDateString])
-      .reduce((sum, h) => sum + h.xpReward, 0);
 
     return { completedToday, totalHabits, xpEarnedToday };
   };
@@ -141,11 +153,18 @@ const HabitsPage = () => {
             compact={true}
           />
           <Button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              console.log('Button clicked!');
+              setIsModalOpen(true);
+            }}
             variant="contained"
             color="secondary"
             startIcon={<Add />}
-            sx={{ flexShrink: 0 }}
+            sx={{ 
+              flexShrink: 0,
+              position: 'relative',
+              zIndex: 1
+            }}
           >
             NEW HABIT
           </Button>
@@ -154,16 +173,32 @@ const HabitsPage = () => {
 
       {/* Habits List */}
       {sortedAndFilteredHabits.length > 0 ? (
-        <Box className="space-y-4">
+        <Box sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 2, 
+          justifyContent: 'center',
+          maxWidth: '1200px', 
+          mx: 'auto', 
+          width: '100%' 
+        }}>
           {sortedAndFilteredHabits.map((habit) => (
-            <HabitCard
+            <Box 
               key={habit.id}
-              habit={habit}
-              onEdit={(selectedHabit) => {
-                setHabitToEdit(selectedHabit);
-                setIsModalOpen(true);
+              sx={{ 
+                flex: '0 0 calc(50% - 8px)', // 50% width minus gap
+                minWidth: '280px',
+                maxWidth: '580px'
               }}
-            />
+            >
+              <HabitCard
+                habit={habit}
+                onEdit={(selectedHabit) => {
+                  setHabitToEdit(selectedHabit);
+                  setIsModalOpen(true);
+                }}
+              />
+            </Box>
           ))}
         </Box>
       ) : habits.length > 0 ? (

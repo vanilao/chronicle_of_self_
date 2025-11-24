@@ -1,13 +1,8 @@
 import React from 'react';
 import { Grid, Typography, Box } from '@mui/material';
+import { DIFFICULTY_LEVELS } from '../../../constants/habitConstants';
 
 const DifficultySelector = ({ selectedDifficulty, onDifficultyChange }) => {
-  const difficulties = [
-    { name: 'Easy', xp: 10 },
-    { name: 'Medium', xp: 25 },
-    { name: 'Hard', xp: 50 }
-  ];
-
   return (
     <Box>
       <Typography
@@ -21,14 +16,24 @@ const DifficultySelector = ({ selectedDifficulty, onDifficultyChange }) => {
       >
         DIFFICULTY
       </Typography>
-      <Grid container spacing={1.5}>
-        {difficulties.map((diff) => {
+      <Grid container spacing={1.5} role="radiogroup" aria-label="Difficulty selection">
+        {DIFFICULTY_LEVELS.map((diff) => {
           const isSelected = selectedDifficulty === diff.name;
 
           return (
             <Grid size={{ xs: 4 }} key={diff.name}>
               <Box
                 onClick={() => onDifficultyChange(diff.name)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onDifficultyChange(diff.name);
+                  }
+                }}
+                role="radio"
+                aria-checked={isSelected}
+                aria-label={`Select ${diff.name} difficulty, ${diff.xp} XP`}
+                tabIndex={0}
                 sx={{
                   p: 2,
                   borderRadius: 2,

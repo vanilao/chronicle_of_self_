@@ -1,376 +1,139 @@
-import React from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
-  Box,
   Card,
-  CardContent,
-  Typography,
-  IconButton,
-  Chip,
-  Grid
+  CardContent
 } from '@mui/material';
-import {
-  LocalFireDepartment,
-  Delete,
-  Edit,
-  Check
-} from '@mui/icons-material';
 import { useHabits } from '../../../contexts/HabitsContext';
 import { useTimeTravel } from '../../../contexts/TimeTravelContext';
-import { getCategoryConfig } from '../../../config/categories';
+import { getCompletionCount, isHabitCompletedForDate, getLastNDays } from '../../../utils/habitHelpers';
+
+// Import extracted components
+import HabitCardHeader from './HabitCardHeader';
+import HabitCardWeekly from './HabitCardWeekly';
+import ErrorSnackbar from './components/ErrorSnackbar';
 
 const HabitCard = ({ habit, onEdit }) => {
   const { toggleHabitCompletion, deleteHabit, getHabitStreak } = useHabits();
   const { currentDate, currentDateString } = useTimeTravel();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Get category configuration
-  const categoryConfig = getCategoryConfig(habit.category);
-  const Icon = categoryConfig.icon;
   const streak = getHabitStreak(habit.id);
-
-  // Get last 7 days for weekly view
-  const getLast7Days = () => {
-    const days = [];
-    const today = new Date(currentDate);
-
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      days.push(date);
-    }
-
-    return days;
-  };
-
-  const last7Days = getLast7Days();
+  
+  // Get current date string for today's stats
   const todayStr = currentDateString;
+  
+  // Get target completions (default to 1 if not set)
+  const targetCompletions = habit.targetCompletions || 1;
 
-  const handleToggleDay = (date) => {
+  // Memoize expensive calculations
+  const todayCompletionCount = useMemo(() => {
+    return getCompletionCount(habit.completionHistory, todayStr);
+  }, [habit.completionHistory, todayStr]);
+
+  const last5Days = useMemo(() => {
+    return getLastNDays(5, new Date(currentDate));
+  }, [currentDate]);
+
+  // Memoize event handlers
+  const handleToggleDay = useCallback(async (date) => {
     const dateStr = date.toISOString().split('T')[0];
     // Only allow toggling today
     if (dateStr === todayStr) {
-      toggleHabitCompletion(habit.id, dateStr);
+      setLoading(true);
+      setError(null);
+      try {
+        await toggleHabitCompletion(habit.id, dateStr);
+      } catch (err) {
+        // Handle different error types
+        if (err.message.includes('network') || err.message.includes('fetch')) {
+          setError('Network error. Please check your connection and try again.');
+        } else if (err.message.includes('permission') || err.message.includes('unauthorized')) {
+          setError('Permission denied. Please log in again.');
+        } else {
+          setError('Failed to update habit completion. Please try again.');
+        }
+        console.error('Habit toggle error:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  };
+  }, [todayStr, toggleHabitCompletion, habit.id]);
 
-  const isDayCompleted = (date) => {
+  const handleDelete = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteHabit(habit.id);
+    } catch (err) {
+      // Handle different error types
+      if (err.message.includes('network') || err.message.includes('fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else if (err.message.includes('permission') || err.message.includes('unauthorized')) {
+        setError('Permission denied. Please log in again.');
+      } else {
+        setError('Failed to delete habit. Please try again.');
+      }
+      console.error('Habit delete error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [deleteHabit, habit.id]);
+
+  // Memoize helper functions
+  const isDayCompleted = useCallback((date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return habit.completionHistory?.[dateStr] || false;
-  };
+    return isHabitCompletedForDate(habit.completionHistory, dateStr, targetCompletions);
+  }, [habit.completionHistory, targetCompletions]);
 
-  const isToday = (date) => {
+  const isToday = useCallback((date) => {
     const dateStr = date.toISOString().split('T')[0];
     return dateStr === todayStr;
-  };
+  }, [todayStr]);
 
   const completedToday = isDayCompleted(new Date(currentDate));
 
-  const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
-      case 'Easy': return { bg: '#dcfce7', color: '#166534' };
-      case 'Medium': return { bg: '#fef9c3', color: '#854d0e' };
-      case 'Hard': return { bg: '#fee2e2', color: '#991b1b' };
-      default: return { bg: '#f3f4f6', color: '#374151' };
-    }
-  };
-
   return (
-    <Card>
-      <CardContent sx={{ p: 2.5 }}>
-        {/* Header Section */}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
-          {/* Left: Icon + Info */}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, flex: 1 }}>
-            <Box
-              sx={{
-                bgcolor: categoryConfig.bgColor,
-                p: 1.5,
-                borderRadius: 2,
-                border: `3px solid ${categoryConfig.borderColor}`,
-                boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(2px)',
-                  boxShadow: '2px 2px 0px rgba(0,0,0,1)',
-                  bgcolor: categoryConfig.hoverBg
-                }
-              }}
-            >
-              <Icon 
-                sx={{ 
-                  fontSize: 24, 
-                  color: categoryConfig.color,
-                  transition: 'all 0.2s ease-in-out'
-                }} 
-              />
-            </Box>
-
-            <Box sx={{ flex: 1 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontWeight: 700,
-                  fontSize: '1.125rem',
-                  color: 'text.primary',
-                  mb: 1
-                }}
-              >
-                {habit.name}
-              </Typography>
-
-              {/* Description */}
-              {habit.description && (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    color: 'text.secondary',
-                    fontSize: '0.875rem',
-                    mb: 2,
-                    lineHeight: 1.4,
-                    fontStyle: 'italic'
-                  }}
-                >
-                  {habit.description.length > 100 
-                    ? `${habit.description.substring(0, 100)}...`
-                    : habit.description
-                  }
-                </Typography>
-              )}
-
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
-                {/* Category Badge */}
-                <Chip
-                  label={habit.category}
-                  size="small"
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontSize: '0.75rem',
-                    bgcolor: categoryConfig.bgColor,
-                    color: categoryConfig.color,
-                    border: `2px solid ${categoryConfig.borderColor}`,
-                    borderRadius: 1,
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease-in-out',
-                    '&:hover': {
-                      bgcolor: categoryConfig.hoverBg,
-                      transform: 'scale(1.05)'
-                    }
-                  }}
-                />
-
-                {/* Difficulty Badge */}
-                <Chip
-                  label={habit.difficulty}
-                  size="small"
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontSize: '0.75rem',
-                    bgcolor: getDifficultyColor(habit.difficulty).bg,
-                    color: getDifficultyColor(habit.difficulty).color,
-                    border: '2px solid black',
-                    borderRadius: 1
-                  }}
-                />
-
-                {/* XP Badge */}
-                <Chip
-                  label={`+${habit.xpReward} XP`}
-                  size="small"
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontSize: '0.75rem',
-                    bgcolor: 'primary.main',
-                    color: 'text.primary',
-                    border: '2px solid black',
-                    borderRadius: 1
-                  }}
-                />
-
-                {/* Streak */}
-                {streak > 0 && (
-                  <Chip
-                    icon={<LocalFireDepartment sx={{ fontSize: 12 }} />}
-                    label={`${streak} day${streak !== 1 ? 's' : ''}`}
-                    size="small"
-                    sx={{
-                      fontFamily: '"IBM Plex Mono", monospace',
-                      fontSize: '0.75rem',
-                      bgcolor: '#ffedd5',
-                      color: '#9a3412',
-                      border: '2px solid black',
-                      borderRadius: 1,
-                      '& .MuiChip-icon': {
-                        color: '#9a3412'
-                      }
-                    }}
-                  />
-                )}
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Right: Action Buttons */}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, ml: 1 }}>
-            {onEdit && (
-              <IconButton
-                onClick={() => onEdit(habit)}
-                size="small"
-                sx={{
-                  bgcolor: 'background.default',
-                  border: '3px solid black',
-                  borderRadius: 2,
-                  boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                  '&:hover': {
-                    bgcolor: 'background.default',
-                    transform: 'translate(2px, 2px)',
-                    boxShadow: '2px 2px 0px rgba(0,0,0,1)'
-                  }
-                }}
-              >
-                <Edit sx={{ fontSize: 16, color: 'text.primary' }} />
-              </IconButton>
-            )}
-
-            <IconButton
-              onClick={() => {
-                if (window.confirm('Are you sure you want to delete this habit?')) {
-                  deleteHabit(habit.id);
-                }
-              }}
-              size="small"
-              sx={{
-                bgcolor: '#fee2e2',
-                border: '3px solid black',
-                borderRadius: 2,
-                boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                '&:hover': {
-                  bgcolor: '#fee2e2',
-                  transform: 'translate(2px, 2px)',
-                  boxShadow: '2px 2px 0px rgba(0,0,0,1)'
-                }
-              }}
-            >
-              <Delete sx={{ fontSize: 16, color: '#991b1b' }} />
-            </IconButton>
-          </Box>
-        </Box>
+    <Card
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+        }
+      }}
+    >
+      <CardContent sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Header Section with Actions */}
+        <HabitCardHeader 
+          habit={habit} 
+          onEdit={onEdit}
+          onDelete={handleDelete}
+          loading={loading}
+          streak={streak}
+        />
 
         {/* Weekly Progress Grid */}
-        <Box sx={{ borderTop: '2px solid black', pt: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-            <Typography
-              sx={{
-                fontFamily: '"IBM Plex Mono", monospace',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: 'text.primary'
-              }}
-            >
-              LAST 7 DAYS
-            </Typography>
-            {completedToday && (
-              <Chip
-                label="DONE TODAY"
-                size="small"
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontSize: '0.75rem',
-                  bgcolor: 'secondary.main',
-                  color: 'text.primary',
-                  border: '2px solid black',
-                  borderRadius: 1
-                }}
-              />
-            )}
-          </Box>
-
-          <Grid container spacing={1}>
-            {last7Days.map((date, index) => {
-              const completed = isDayCompleted(date);
-              const today = isToday(date);
-              const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-              const dayNum = date.getDate();
-
-              return (
-                <Grid size={{ xs: 12 / 7 }} key={index}>
-                  <Box
-                    onClick={() => handleToggleDay(date)}
-                    sx={{
-                      p: 1,
-                      borderRadius: 2,
-                      border: '3px solid black',
-                      boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-                      bgcolor: completed ? 'secondary.main' : 'background.default',
-                      opacity: completed ? 1 : 0.6,
-                      outline: today ? '2px solid' : 'none',
-                      outlineColor: 'primary.main',
-                      cursor: today ? 'pointer' : 'default',
-                      transition: 'all 0.2s',
-                      '&:hover': today ? {
-                        transform: 'scale(1.05)'
-                      } : {}
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
-                      <Typography
-                        sx={{
-                          fontFamily: '"IBM Plex Mono", monospace',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          color: 'text.primary'
-                        }}
-                      >
-                        {dayName}
-                      </Typography>
-                      <Box
-                        sx={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 2,
-                          border: '2px solid black',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          bgcolor: completed ? 'text.primary' : 'background.default'
-                        }}
-                      >
-                        {completed ? (
-                          <Check sx={{ fontSize: 20, color: 'background.default' }} />
-                        ) : (
-                          <Typography
-                            sx={{
-                              fontFamily: '"IBM Plex Mono", monospace',
-                              fontSize: '0.75rem',
-                              color: 'text.secondary'
-                            }}
-                          >
-                            {dayNum}
-                          </Typography>
-                        )}
-                      </Box>
-                      {today && (
-                        <Typography
-                          sx={{
-                            fontFamily: '"IBM Plex Mono", monospace',
-                            fontSize: '0.625rem',
-                            fontWeight: 700,
-                            color: 'secondary.main'
-                          }}
-                        >
-                          TODAY
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Box>
+        <HabitCardWeekly 
+          last5Days={last5Days}
+          isDayCompleted={isDayCompleted}
+          isToday={isToday}
+          handleToggleDay={handleToggleDay}
+          completedToday={completedToday}
+          loading={loading}
+          habit={habit}
+          getTodayCompletionCount={todayCompletionCount}
+        />
       </CardContent>
+      
+      {/* Error Snackbar */}
+      <ErrorSnackbar error={error} onClose={() => setError(null)} />
     </Card>
   );
 };
 
-export default HabitCard;
+export default React.memo(HabitCard);

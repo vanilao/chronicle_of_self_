@@ -69,14 +69,26 @@ const DashboardPage = () => {
       habits.forEach(h => {
         if (h.completionHistory) {
           Object.keys(h.completionHistory).forEach(d => {
-            if (h.completionHistory[d]) dates.add(d);
+            const dayCompletions = h.completionHistory[d];
+            const completionCount = Array.isArray(dayCompletions) ? dayCompletions.length : (dayCompletions ? 1 : 0);
+            const targetCompletions = h.targetCompletions || 1;
+            if (completionCount >= targetCompletions) dates.add(d);
           });
         }
       });
 
       dates.forEach(date => {
-        const completedOnDate = habits.filter(h => h.completionHistory?.[date]).length;
-        if (completedOnDate === habits.length) {
+        let allCompleted = true;
+        habits.forEach(h => {
+          const dayCompletions = h.completionHistory?.[date];
+          const completionCount = Array.isArray(dayCompletions) ? dayCompletions.length : (dayCompletions ? 1 : 0);
+          const targetCompletions = h.targetCompletions || 1;
+          if (completionCount < targetCompletions) {
+            allCompleted = false;
+          }
+        });
+        
+        if (allCompleted) {
           hadPerfectDay = true;
         }
       });
@@ -229,16 +241,32 @@ const DashboardPage = () => {
           {todaysHabits.length === 0 ? (
             <EmptyState onCreateHabit={() => setIsModalOpen(true)} />
           ) : (
-            <Box className="space-y-4">
+            <Box sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: 2, 
+              justifyContent: 'center',
+              maxWidth: '1200px', 
+              mx: 'auto', 
+              width: '100%' 
+            }}>
               {todaysHabits.map((habit) => (
-                <HabitCard
+                <Box 
                   key={habit.id}
-                  habit={habit}
-                  onEdit={(selectedHabit) => {
-                    setHabitToEdit(selectedHabit);
-                    setIsModalOpen(true);
+                  sx={{ 
+                    flex: '0 0 calc(50% - 8px)', // 50% width minus gap
+                    minWidth: '280px',
+                    maxWidth: '580px'
                   }}
-                />
+                >
+                  <HabitCard
+                    habit={habit}
+                    onEdit={(selectedHabit) => {
+                      setHabitToEdit(selectedHabit);
+                      setIsModalOpen(true);
+                    }}
+                  />
+                </Box>
               ))}
             </Box>
           )}

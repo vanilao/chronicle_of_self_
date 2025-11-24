@@ -38,8 +38,10 @@ const HabitFilters = ({
   const frequencySelectRef = useRef(null);
   const sortSelectRef = useRef(null);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - Only in non-compact mode
   useEffect(() => {
+    if (compact) return; // Skip keyboard shortcuts in compact mode
+
     const handleKeyDown = (event) => {
       // Only handle shortcuts when not typing in an input
       if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
@@ -92,7 +94,7 @@ const HabitFilters = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onCategoryChange, onDifficultyChange, onFrequencyChange, onSearchChange, onSortChange, onSortOrderChange]);
+  }, [compact, onCategoryChange, onDifficultyChange, onFrequencyChange, onSearchChange, onSortChange, onSortOrderChange]);
 
   // Generate dynamic categories with counts
   const categoriesWithCounts = useMemo(() => {
@@ -123,6 +125,16 @@ const HabitFilters = ({
       count: freq === 'All' ? habitsLength : 0
     }));
   }, [habits]);
+
+  // Ensure we always have valid options for the selects
+  const safeCategories = categoriesWithCounts.length > 0 ? categoriesWithCounts : [{ name: 'All', count: 0 }];
+  const safeDifficulties = difficultiesWithCounts.length > 0 ? difficultiesWithCounts : [{ name: 'All', count: 0 }];
+  const safeFrequencies = frequenciesWithCounts.length > 0 ? frequenciesWithCounts : [{ name: 'All', count: 0 }];
+
+  // Ensure selected values are valid
+  const safeSelectedCategory = safeCategories.some(cat => cat.name === selectedCategory) ? selectedCategory : 'All';
+  const safeSelectedDifficulty = safeDifficulties.some(diff => diff.name === selectedDifficulty) ? selectedDifficulty : 'All';
+  const safeSelectedFrequency = safeFrequencies.some(freq => freq.name === selectedFrequency) ? selectedFrequency : 'All';
 
   // Check if any filters are active (excluding sort options)
   const hasActiveFilters = Boolean(
@@ -175,11 +187,11 @@ const HabitFilters = ({
   };
 
   const containerSx = compact 
-    ? { display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }
+    ? { display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }
     : { mb: 3 };
 
   const formControlSx = compact
-    ? { minWidth: 120, '& .MuiOutlinedInput-root': { height: 40 } }
+    ? { minWidth: 100, '& .MuiOutlinedInput-root': { height: 32 } }
     : { minWidth: 150 };
 
   return (
@@ -187,17 +199,17 @@ const HabitFilters = ({
       {/* Search Bar */}
       <TextField
         inputRef={searchInputRef}
-        placeholder="Search habits... (/)"
+        placeholder={compact ? "Search..." : "Search habits... (/)"}
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         InputProps={{
-          startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
-          endAdornment: searchTerm && (
+          startAdornment: <Search sx={{ mr: 0.5, color: 'text.secondary', fontSize: 16 }} />,
+          endAdornment: searchTerm && !compact && (
             <IconButton
               size="small"
               onClick={() => onSearchChange('')}
               sx={{ 
-                mr: 1,
+                mr: 0.5,
                 '&:hover': { bgcolor: 'grey.200' }
               }}
             >
@@ -208,18 +220,20 @@ const HabitFilters = ({
         size={compact ? "small" : "medium"}
         sx={{
           flex: compact ? 1 : 'initial',
-          minWidth: compact ? 200 : 250,
+          minWidth: compact ? 150 : 250,
           '& .MuiOutlinedInput-root': {
             fontFamily: '"IBM Plex Mono", monospace',
-            border: '3px solid black',
-            borderRadius: '8px',
-            boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+            fontSize: compact ? '0.875rem' : '1rem',
+            border: compact ? '1px solid #e0e0e0' : '3px solid black',
+            borderRadius: compact ? '4px' : '8px',
+            boxShadow: compact ? 'none' : '4px 4px 0px rgba(0,0,0,1)',
             '&:hover': {
-              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+              boxShadow: compact ? 'none' : '2px 2px 0px rgba(0,0,0,1)',
+              borderColor: compact ? '#bdbdbd' : 'inherit'
             },
             '&.Mui-focused': {
-              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
-              borderColor: 'primary.main',
+              boxShadow: compact ? 'none' : '2px 2px 0px rgba(0,0,0,1)',
+              borderColor: compact ? 'primary.main' : 'primary.main',
             }
           }
         }}
@@ -230,46 +244,48 @@ const HabitFilters = ({
         <InputLabel 
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
+            fontWeight: 600,
             color: 'text.primary',
-            transform: 'translate(14px, -18px) scale(0.75)',
+            fontSize: compact ? '0.875rem' : '1rem',
+            transform: compact ? 'translate(14px, -9px) scale(0.85)' : 'translate(14px, -18px) scale(0.75)',
             '&.Mui-focused': {
-              transform: 'translate(14px, -21px) scale(0.75)',
+              transform: compact ? 'translate(14px, -12px) scale(0.85)' : 'translate(14px, -21px) scale(0.75)',
             }
           }}
         >
-          Category (c)
+          {compact ? "Category" : "Category (c)"}
         </InputLabel>
         <Select
           inputRef={categorySelectRef}
-          value={selectedCategory}
+          value={safeSelectedCategory}
           onChange={(e) => onCategoryChange(e.target.value)}
           renderValue={(value) => (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CategoryIndicator category={value} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: compact ? 0.5 : 1 }}>
+              {compact ? null : <CategoryIndicator category={value} />}
               <span>{value}</span>
             </Box>
           )}
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
-            border: '3px solid black',
-            borderRadius: '8px',
-            boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+            fontWeight: 600,
+            fontSize: compact ? '0.875rem' : '1rem',
+            border: compact ? '1px solid #e0e0e0' : '3px solid black',
+            borderRadius: compact ? '4px' : '8px',
+            boxShadow: compact ? 'none' : '4px 4px 0px rgba(0,0,0,1)',
             '&:hover': {
-              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+              boxShadow: compact ? 'none' : '2px 2px 0px rgba(0,0,0,1)',
             },
             '& .MuiOutlinedInput-notchedOutline': {
               border: 'none'
             }
           }}
         >
-          {categoriesWithCounts.map((category) => (
+          {safeCategories.map((category) => (
             <FilterMenuItem
               key={category.name}
               item={category}
               onSelect={onCategoryChange}
-              showIndicator={true}
+              showIndicator={!compact}
             />
           ))}
         </Select>
@@ -280,27 +296,28 @@ const HabitFilters = ({
         <InputLabel 
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
+            fontWeight: 600,
             color: 'text.primary',
-            transform: 'translate(14px, -18px) scale(0.75)',
+            fontSize: compact ? '0.875rem' : '1rem',
+            transform: compact ? 'translate(14px, -9px) scale(0.85)' : 'translate(14px, -18px) scale(0.75)',
             '&.Mui-focused': {
-              transform: 'translate(14px, -21px) scale(0.75)',
+              transform: compact ? 'translate(14px, -12px) scale(0.85)' : 'translate(14px, -21px) scale(0.75)',
             }
           }}
         >
-          Difficulty (d)
+          {compact ? "Difficulty" : "Difficulty (d)"}
         </InputLabel>
         <Select
           inputRef={difficultySelectRef}
-          value={selectedDifficulty}
+          value={safeSelectedDifficulty}
           onChange={(e) => onDifficultyChange(e.target.value)}
           renderValue={(value) => (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: compact ? 0.5 : 1 }}>
               {value === 'All' ? (
                 <Box
                   sx={{
-                    width: 12,
-                    height: 12,
+                    width: compact ? 8 : 12,
+                    height: compact ? 8 : 12,
                     borderRadius: '50%',
                     bgcolor: 'text.primary'
                   }}
@@ -311,19 +328,20 @@ const HabitFilters = ({
           )}
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
-            border: '3px solid black',
-            borderRadius: '8px',
-            boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+            fontWeight: 600,
+            fontSize: compact ? '0.875rem' : '1rem',
+            border: compact ? '1px solid #e0e0e0' : '3px solid black',
+            borderRadius: compact ? '4px' : '8px',
+            boxShadow: compact ? 'none' : '4px 4px 0px rgba(0,0,0,1)',
             '&:hover': {
-              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+              boxShadow: compact ? 'none' : '2px 2px 0px rgba(0,0,0,1)',
             },
             '& .MuiOutlinedInput-notchedOutline': {
               border: 'none'
             }
           }}
         >
-          {difficultiesWithCounts.map((difficulty) => (
+          {safeDifficulties.map((difficulty) => (
             <FilterMenuItem
               key={difficulty.name}
               item={difficulty}
@@ -339,27 +357,28 @@ const HabitFilters = ({
         <InputLabel 
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
+            fontWeight: 600,
             color: 'text.primary',
-            transform: 'translate(14px, -18px) scale(0.75)',
+            fontSize: compact ? '0.875rem' : '1rem',
+            transform: compact ? 'translate(14px, -9px) scale(0.85)' : 'translate(14px, -18px) scale(0.75)',
             '&.Mui-focused': {
-              transform: 'translate(14px, -21px) scale(0.75)',
+              transform: compact ? 'translate(14px, -12px) scale(0.85)' : 'translate(14px, -21px) scale(0.75)',
             }
           }}
         >
-          Frequency (f)
+          {compact ? "Frequency" : "Frequency (f)"}
         </InputLabel>
         <Select
           inputRef={frequencySelectRef}
-          value={selectedFrequency}
+          value={safeSelectedFrequency}
           onChange={(e) => onFrequencyChange(e.target.value)}
           renderValue={(value) => (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: compact ? 0.5 : 1 }}>
               {value === 'All' ? (
                 <Box
                   sx={{
-                    width: 12,
-                    height: 12,
+                    width: compact ? 8 : 12,
+                    height: compact ? 8 : 12,
                     borderRadius: '50%',
                     bgcolor: 'text.primary'
                   }}
@@ -370,19 +389,20 @@ const HabitFilters = ({
           )}
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
-            border: '3px solid black',
-            borderRadius: '8px',
-            boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+            fontWeight: 600,
+            fontSize: compact ? '0.875rem' : '1rem',
+            border: compact ? '1px solid #e0e0e0' : '3px solid black',
+            borderRadius: compact ? '4px' : '8px',
+            boxShadow: compact ? 'none' : '4px 4px 0px rgba(0,0,0,1)',
             '&:hover': {
-              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+              boxShadow: compact ? 'none' : '2px 2px 0px rgba(0,0,0,1)',
             },
             '& .MuiOutlinedInput-notchedOutline': {
               border: 'none'
             }
           }}
         >
-          {frequenciesWithCounts.map((frequency) => (
+          {safeFrequencies.map((frequency) => (
             <FilterMenuItem
               key={frequency.name}
               item={frequency}
@@ -393,92 +413,94 @@ const HabitFilters = ({
         </Select>
       </FormControl>
 
-      {/* Sort Dropdown */}
-      <FormControl size={compact ? "small" : "medium"} sx={formControlSx}>
-        <InputLabel 
-          sx={{
-            fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
-            color: 'text.primary',
-            transform: 'translate(14px, -18px) scale(0.75)',
-            '&.Mui-focused': {
-              transform: 'translate(14px, -21px) scale(0.75)',
-            }
-          }}
-        >
-          Sort (s)
-        </InputLabel>
-        <Select
-          inputRef={sortSelectRef}
-          value={sortBy}
-          onChange={(e) => onSortChange(e.target.value)}
-          sx={{
-            fontFamily: '"IBM Plex Mono", monospace',
-            fontWeight: 700,
-            border: '3px solid black',
-            borderRadius: '8px',
-            boxShadow: '4px 4px 0px rgba(0,0,0,1)',
-            '&:hover': {
-              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
-            },
-            '& .MuiOutlinedInput-notchedOutline': {
-              border: 'none'
-            }
-          }}
-        >
-          <MenuItem value="name">
-            <SortIcon icon={FileText} label="Name" />
-          </MenuItem>
-          <MenuItem value="difficulty">
-            <SortIcon icon={Zap} label="Difficulty" />
-          </MenuItem>
-          <MenuItem value="createdDate">
-            <SortIcon icon={Calendar} label="Created" />
-          </MenuItem>
-          <MenuItem value="completionRate">
-            <SortIcon icon={BarChart3} label="Completion Rate" />
-          </MenuItem>
-          <MenuItem value="currentStreak">
-            <SortIcon icon={Flame} label="Streak" />
-          </MenuItem>
-        </Select>
-      </FormControl>
+      {/* Sort Dropdown - Only show in non-compact mode */}
+      {!compact && (
+        <FormControl size="medium" sx={formControlSx}>
+          <InputLabel 
+            sx={{
+              fontFamily: '"IBM Plex Mono", monospace',
+              fontWeight: 700,
+              color: 'text.primary',
+              transform: 'translate(14px, -18px) scale(0.75)',
+              '&.Mui-focused': {
+                transform: 'translate(14px, -21px) scale(0.75)',
+              }
+            }}
+          >
+            Sort (s)
+          </InputLabel>
+          <Select
+            inputRef={sortSelectRef}
+            value={sortBy}
+            onChange={(e) => onSortChange(e.target.value)}
+            sx={{
+              fontFamily: '"IBM Plex Mono", monospace',
+              fontWeight: 700,
+              border: '3px solid black',
+              borderRadius: '8px',
+              boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+              '&:hover': {
+                boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none'
+              }
+            }}
+          >
+            <MenuItem value="name">
+              <SortIcon icon={FileText} label="Name" />
+            </MenuItem>
+            <MenuItem value="difficulty">
+              <SortIcon icon={Zap} label="Difficulty" />
+            </MenuItem>
+            <MenuItem value="createdDate">
+              <SortIcon icon={Calendar} label="Created" />
+            </MenuItem>
+            <MenuItem value="completionRate">
+              <SortIcon icon={BarChart3} label="Completion Rate" />
+            </MenuItem>
+            <MenuItem value="currentStreak">
+              <SortIcon icon={Flame} label="Streak" />
+            </MenuItem>
+          </Select>
+        </FormControl>
+      )}
 
-      {/* Sort Order Toggle */}
+      {/* Sort Order Toggle - Minimal in compact mode */}
       <IconButton
         onClick={() => onSortOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')}
         sx={{
-          border: '3px solid black',
-          borderRadius: '8px',
-          boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+          border: compact ? '1px solid #e0e0e0' : '3px solid black',
+          borderRadius: compact ? '4px' : '8px',
+          boxShadow: compact ? 'none' : '4px 4px 0px rgba(0,0,0,1)',
           '&:hover': {
-            boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+            boxShadow: compact ? 'none' : '2px 2px 0px rgba(0,0,0,1)',
           },
-          height: compact ? 40 : 40,
-          width: compact ? 40 : 40,
+          height: compact ? 32 : 40,
+          width: compact ? 32 : 40,
           bgcolor: sortOrder === 'desc' ? 'primary.main' : 'background.default'
         }}
         title={`Sort order: ${sortOrder === 'asc' ? 'Ascending' : 'Descending'}`}
       >
-        {sortOrder === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
+        {sortOrder === 'asc' ? <ArrowUpward fontSize={compact ? "small" : "medium"} /> : <ArrowDownward fontSize={compact ? "small" : "medium"} />}
       </IconButton>
 
-      {/* Clear Filters Button */}
+      {/* Clear Filters Button - Minimal in compact mode */}
       {hasActiveFilters && (
         <IconButton
           onClick={clearAllFilters}
           sx={{
-            border: '3px solid black',
-            borderRadius: '8px',
-            boxShadow: '4px 4px 0px rgba(0,0,0,1)',
+            border: compact ? '1px solid #e0e0e0' : '3px solid black',
+            borderRadius: compact ? '4px' : '8px',
+            boxShadow: compact ? 'none' : '4px 4px 0px rgba(0,0,0,1)',
             '&:hover': {
-              boxShadow: '2px 2px 0px rgba(0,0,0,1)',
+              boxShadow: compact ? 'none' : '2px 2px 0px rgba(0,0,0,1)',
             },
-            height: compact ? 40 : 40,
-            width: compact ? 40 : 40
+            height: compact ? 32 : 40,
+            width: compact ? 32 : 40
           }}
         >
-          <Clear />
+          <Clear fontSize={compact ? "small" : "medium"} />
         </IconButton>
       )}
 

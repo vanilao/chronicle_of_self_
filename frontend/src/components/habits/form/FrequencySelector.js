@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, ToggleButtonGroup, ToggleButton, Box } from '@mui/material';
+import { ToggleButtonGroup, ToggleButton, Box } from '@mui/material';
 import WeekdaySelector from './WeekdaySelector';
 
 const FrequencySelector = ({ 
@@ -10,30 +10,22 @@ const FrequencySelector = ({
 }) => {
   return (
     <Box>
-      <Typography
-        sx={{
-          fontFamily: '"IBM Plex Mono", monospace',
-          fontWeight: 700,
-          fontSize: '0.875rem',
-          color: 'text.primary',
-          mb: 1.5
-        }}
-      >
-        FREQUENCY
-      </Typography>
       <ToggleButtonGroup
         value={frequencyType}
         exclusive
         onChange={(e, value) => value && onFrequencyTypeChange(value)}
         fullWidth
-        sx={{ mb: 2 }}
+        sx={{ mb: 1.5 }}
       >
         <ToggleButton
           value="Daily"
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
             fontWeight: 700,
-            border: '3px solid black',
+            fontSize: '0.875rem',
+            py: 1,
+            px: 1.5,
+            border: '2px solid black',
             '&.Mui-selected': {
               bgcolor: 'secondary.main',
               '&:hover': {
@@ -49,7 +41,10 @@ const FrequencySelector = ({
           sx={{
             fontFamily: '"IBM Plex Mono", monospace',
             fontWeight: 700,
-            border: '3px solid black',
+            fontSize: '0.875rem',
+            py: 1,
+            px: 1.5,
+            border: '2px solid black',
             '&.Mui-selected': {
               bgcolor: 'secondary.main',
               '&:hover': {
