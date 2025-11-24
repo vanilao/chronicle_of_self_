@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid, Typography, Chip } from '@mui/material';
+import { Box, Grid, Typography, Chip, CircularProgress } from '@mui/material';
 import { Check } from 'lucide-react';
 import { getCompletionCount } from '../../../utils/habitHelpers';
 
@@ -147,16 +147,28 @@ const HabitCardWeekly = ({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    bgcolor: 'rgba(255,255,255,0.9)',
+                    bgcolor: 'rgba(0,0,0,0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: 0.5,
-                    zIndex: 2
+                    zIndex: 2,
+                    backdropFilter: 'blur(1px)',
+                    transition: 'all 0.2s ease'
                   }}>
-                    <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.5rem' }}>
-                      ...
-                    </Typography>
+                    <CircularProgress 
+                      size={16} 
+                      thickness={4}
+                      sx={{
+                        color: '#000',
+                        animation: 'pulse 1.5s ease-in-out infinite',
+                        '@keyframes pulse': {
+                          '0%': { opacity: 1 },
+                          '50%': { opacity: 0.6 },
+                          '100%': { opacity: 1 }
+                        }
+                      }}
+                    />
                   </Box>
                 )}
                 

@@ -22,8 +22,8 @@ import {
   validateHabitDescription,
   validateTargetCompletions
 } from '../../utils/habitHelpers';
-import ErrorSnackbar from './ui/components/ErrorSnackbar';
-import CloseModalButton from './ui/components/CloseModalButton';
+import ErrorSnackbar from './ui/components/feedback/ErrorSnackbar';
+import CloseModalButton from './ui/components/modals/CloseModalButton';
 
 const defaultFormState = DEFAULT_HABIT_VALUES;
 

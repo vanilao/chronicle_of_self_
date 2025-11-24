@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import ProgressCircle from './components/ProgressCircle';
+import ProgressCircle from './components/progress/ProgressCircle';
 
 const HabitCardProgress = ({ 
   todayCompletionCount, 

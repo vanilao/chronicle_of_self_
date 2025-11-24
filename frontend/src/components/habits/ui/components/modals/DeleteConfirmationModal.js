@@ -11,7 +11,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Delete, Warning } from '@mui/icons-material';
-import ErrorSnackbar from './ErrorSnackbar';
+import ErrorSnackbar from '../feedback/ErrorSnackbar';
 
 const DeleteConfirmationModal = ({
   isOpen,

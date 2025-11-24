@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'habit-sort';
 const DEFAULT_SORT = {
@@ -52,7 +52,7 @@ export const usePersistedSort = (page = 'habits') => {
     });
   };
 
-  const getSortedHabits = (habits) => {
+  const getSortedHabits = useCallback((habits) => {
     if (!habits || habits.length === 0) return [];
 
     return [...habits].sort((a, b) => {
@@ -89,7 +89,7 @@ export const usePersistedSort = (page = 'habits') => {
 
       return sortConfig.sortOrder === 'asc' ? comparison : -comparison;
     });
-  };
+  }, [sortConfig]);
 
   const getSmartSortSuggestion = (activeFilters) => {
     // Smart suggestions based on current filters

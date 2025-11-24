@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Typography,
   Button,
   CircularProgress,
   Card,
-  CardContent
+  CardContent,
+  Pagination
 } from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
@@ -22,8 +23,11 @@ const HabitsPage = () => {
   const { habits, isLoading } = useHabits();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   
-  console.log('HabitsPage state:', { isModalOpen, habitToEdit });
+  // Pagination settings
+  const HABITS_PER_PAGE = 6;
+  
   
   // Use persisted filters and sort
   const { filters, rawFilters, updateFilter, clearFilters, hasActiveFilters } = usePersistedFilters('habits');
@@ -73,6 +77,27 @@ const HabitsPage = () => {
   const sortedAndFilteredHabits = useMemo(() => {
     return getSortedHabits(filteredHabits);
   }, [filteredHabits, getSortedHabits]);
+
+  // Pagination logic
+  const paginatedHabits = useMemo(() => {
+    const startIndex = (currentPage - 1) * HABITS_PER_PAGE;
+    const endIndex = startIndex + HABITS_PER_PAGE;
+    return sortedAndFilteredHabits.slice(startIndex, endIndex);
+  }, [sortedAndFilteredHabits, currentPage]);
+
+  const totalPages = useMemo(() => {
+    return Math.ceil(sortedAndFilteredHabits.length / HABITS_PER_PAGE);
+  }, [sortedAndFilteredHabits.length]);
+
+  // Reset to page 1 when filters change
+  const handlePageChange = (event, newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  // Reset page when filters or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, sortConfig]);
 
   // Calculate today's stats using helper
   const getTodayStats = () => {
@@ -173,19 +198,20 @@ const HabitsPage = () => {
 
       {/* Habits List */}
       {sortedAndFilteredHabits.length > 0 ? (
-        <Box sx={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: 2, 
-          justifyContent: 'center',
-          maxWidth: '1200px', 
-          mx: 'auto', 
-          width: '100%' 
-        }}>
-          {sortedAndFilteredHabits.map((habit) => (
-            <Box 
+        <>
+          <Box sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: 2, 
+            justifyContent: 'center',
+            maxWidth: '1200px', 
+            mx: 'auto', 
+            width: '100%' 
+          }}>
+            {paginatedHabits.map((habit) => (
+            <Box
               key={habit.id}
-              sx={{ 
+              sx={{
                 flex: '0 0 calc(50% - 8px)', // 50% width minus gap
                 minWidth: '280px',
                 maxWidth: '580px'
@@ -201,6 +227,41 @@ const HabitsPage = () => {
             </Box>
           ))}
         </Box>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mt: 4,
+            mb: 2
+          }}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              sx={{
+                '& .MuiPaginationItem-root': {
+                  fontFamily: '"IBM Plex Mono", monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0,0,0,0.04)'
+                  }
+                },
+                '& .Mui-selected': {
+                  backgroundColor: 'primary.main',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark'
+                  }
+                }
+              }}
+            />
+          </Box>
+        )}
+      </>
       ) : habits.length > 0 ? (
         <Card>
           <CardContent sx={{ p: 6, textAlign: 'center' }}>

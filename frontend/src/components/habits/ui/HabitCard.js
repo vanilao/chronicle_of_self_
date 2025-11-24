@@ -10,12 +10,13 @@ import { getCompletionCount, isHabitCompletedForDate, getLastNDays } from '../..
 // Import extracted components
 import HabitCardHeader from './HabitCardHeader';
 import HabitCardWeekly from './HabitCardWeekly';
-import ErrorSnackbar from './components/ErrorSnackbar';
+import ErrorSnackbar from './components/feedback/ErrorSnackbar';
 
 const HabitCard = ({ habit, onEdit }) => {
   const { toggleHabitCompletion, deleteHabit, getHabitStreak } = useHabits();
   const { currentDate, currentDateString } = useTimeTravel();
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const streak = getHabitStreak(habit.id);
@@ -61,7 +62,7 @@ const HabitCard = ({ habit, onEdit }) => {
   }, [todayStr, toggleHabitCompletion, habit.id]);
 
   const handleDelete = useCallback(async () => {
-    setLoading(true);
+    setDeleteLoading(true);
     setError(null);
     try {
       await deleteHabit(habit.id);
@@ -76,7 +77,7 @@ const HabitCard = ({ habit, onEdit }) => {
       }
       console.error('Habit delete error:', err);
     } finally {
-      setLoading(false);
+      setDeleteLoading(false);
     }
   }, [deleteHabit, habit.id]);
 
@@ -113,7 +114,7 @@ const HabitCard = ({ habit, onEdit }) => {
           habit={habit} 
           onEdit={onEdit}
           onDelete={handleDelete}
-          loading={loading}
+          loading={deleteLoading}
           streak={streak}
         />
 
@@ -136,4 +137,4 @@ const HabitCard = ({ habit, onEdit }) => {
   );
 };
 
-export default React.memo(HabitCard);
+export default HabitCard;

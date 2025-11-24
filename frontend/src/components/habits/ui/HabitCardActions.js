@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Button, CircularProgress } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import DeleteConfirmationModal from './components/DeleteConfirmationModal';
+import DeleteConfirmationModal from './components/modals/DeleteConfirmationModal';
 
 const HabitCardActions = ({ habit, onEdit, onDelete, loading }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -31,7 +31,7 @@ const HabitCardActions = ({ habit, onEdit, onDelete, loading }) => {
               bgcolor: 'background.default',
               color: 'text.primary',
               border: '2px solid black',
-              borderRadius: 1.5,
+              borderRadius: 0.5,
               boxShadow: '3px 3px 0px rgba(0,0,0,1)',
               fontFamily: '"IBM Plex Mono", monospace',
               fontSize: '0.625rem',
@@ -60,7 +60,7 @@ const HabitCardActions = ({ habit, onEdit, onDelete, loading }) => {
             bgcolor: '#fee2e2',
             color: '#991b1b',
             border: '2px solid black',
-            borderRadius: 1.5,
+            borderRadius: 0.5,
             boxShadow: '3px 3px 0px rgba(0,0,0,1)',
             fontFamily: '"IBM Plex Mono", monospace',
             fontSize: '0.625rem',

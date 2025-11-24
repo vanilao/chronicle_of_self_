@@ -4,7 +4,7 @@ import { Calendar } from 'lucide-react';
 import { getCategoryConfig } from '../../../config/categories';
 import { IconRenderer } from '../icons';
 import HabitCardActions from './HabitCardActions';
-import StreakBadge from './components/StreakBadge';
+import StreakBadge from './components/badges/StreakBadge';
 
 const HabitCardHeader = ({ habit, onEdit, onDelete, loading, streak }) => {
   // Get category configuration
@@ -124,7 +124,7 @@ const HabitCardHeader = ({ habit, onEdit, onDelete, loading, streak }) => {
                 whiteSpace: 'nowrap',
                 cursor: 'help',
                 '&:hover': {
-                  color: 'primary.main'
+                  color: '#666666'
                 }
               }}
             >

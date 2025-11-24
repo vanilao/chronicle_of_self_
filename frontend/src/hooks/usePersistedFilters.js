@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDebounce } from './useDebounce';
 
 const STORAGE_KEY = 'habit-filters';
@@ -25,7 +25,10 @@ export const usePersistedFilters = (page = 'habits') => {
 
   // Debounce search term to avoid excessive re-renders
   const debouncedSearchTerm = useDebounce(filters.searchTerm, 300);
-  const debouncedFilters = { ...filters, searchTerm: debouncedSearchTerm };
+  const debouncedFilters = useMemo(() => ({
+    ...filters,
+    searchTerm: debouncedSearchTerm
+  }), [filters, debouncedSearchTerm]);
 
   // Save to localStorage whenever filters change (but not on every search keystroke)
   useEffect(() => {

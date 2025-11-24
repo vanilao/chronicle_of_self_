@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogActions
 } from '@mui/material';
-import CloseModalButton from '../ui/components/CloseModalButton';
+import CloseModalButton from '../ui/components/modals/CloseModalButton';
 import {
   Favorite,
   Star,
