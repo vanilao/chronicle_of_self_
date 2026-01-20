@@ -17,10 +17,16 @@ import {
   ChevronRight
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import SoundManager from '../../utils/soundManager';
 
 const ArchetypeSelectionPage = () => {
   const navigate = useNavigate();
   const { updateUser } = useAuth();
+  const { playSound } = useSoundContext();
+  const { theme } = useTheme();
+  const soundManager = new SoundManager(playSound);
   const [selectedArchetype, setSelectedArchetype] = useState(null);
 
   const archetypes = [
@@ -82,6 +88,8 @@ const ArchetypeSelectionPage = () => {
       archetypeCategory: selectedArchetypeData.category
     });
 
+    // Navigate to dashboard - ThemeSoundManager will handle starting the music
+    console.log(`🎵 Registration complete - navigating to dashboard`);
     navigate('/dashboard');
   };
 

@@ -20,10 +20,17 @@ import {
 } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useTimeTravel } from '../../contexts/TimeTravelContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import { useXPWithSound } from '../../hooks/useXPWithSound';
+import SoundManager from '../../utils/soundManager';
+import { calculateXPReward } from '../../utils/levelingSystem';
 
 const HabitCard = ({ habit, onEdit }) => {
   const { toggleHabitCompletion, deleteHabit, getHabitStreak } = useHabits();
   const { currentDate, currentDateString } = useTimeTravel();
+  const { playSound } = useSoundContext();
+  const { awardXP } = useXPWithSound();
+  const soundManager = new SoundManager(playSound);
 
   const categoryIcons = {
     Body: FitnessCenter,
@@ -56,6 +63,17 @@ const HabitCard = ({ habit, onEdit }) => {
     const dateStr = date.toISOString().split('T')[0];
     // Only allow toggling today
     if (dateStr === todayStr) {
+      const wasCompleted = isDayCompleted(date);
+      if (!wasCompleted) {
+        // Play Click1 sound when checking off habit
+        soundManager.playClick1();
+        const baseXP = habit.difficulty === 'easy' ? 10 : habit.difficulty === 'medium' ? 25 : 50;
+        const xpResult = calculateXPReward(baseXP, habit.category, 'Mind'); // Default to Mind archetype
+        awardXP(xpResult.finalXP);
+      } else {
+        // Play Click1 sound when unchecking habit too
+        soundManager.playClick1();
+      }
       toggleHabitCompletion(habit.id, dateStr);
     }
   };
@@ -182,7 +200,10 @@ const HabitCard = ({ habit, onEdit }) => {
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, ml: 1 }}>
             {onEdit && (
               <IconButton
-                onClick={() => onEdit(habit)}
+                onClick={() => {
+                  soundManager.playClick1();
+                  onEdit(habit);
+                }}
                 size="small"
                 sx={{
                   bgcolor: 'background.default',
@@ -203,6 +224,7 @@ const HabitCard = ({ habit, onEdit }) => {
             <IconButton
               onClick={() => {
                 if (window.confirm('Are you sure you want to delete this habit?')) {
+                  soundManager.playGrowtopiaTrashSound();
                   deleteHabit(habit.id);
                 }
               }}

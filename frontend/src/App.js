@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { HabitsProvider } from './contexts/HabitsContext';
 import { TimeTravelProvider } from './contexts/TimeTravelContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { SoundProvider } from './contexts/SoundContext';
+import ThemeSoundManager from './components/sound/ThemeSoundManager';
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -35,6 +37,7 @@ import HabitsPage from './pages/habits/HabitsPage';
 import ProgressPage from './pages/progress/ProgressPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import SettingsPage from './pages/settings/SettingsPage';
+import SoundDemoPage from './pages/demo/SoundDemoPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Auth Components
@@ -95,6 +98,7 @@ function AppRoutes() {
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+        <Route path="/sound-demo" element={<ProtectedRoute><SoundDemoPage /></ProtectedRoute>} />
 
         {/* 404 Catch-all */}
         <Route path="*" element={<NotFoundPage />} />
@@ -110,9 +114,13 @@ function App() {
         <AuthProvider>
           <SettingsProvider>
             <HabitsProvider>
-              <Router>
-                <AppRoutes />
-              </Router>
+              <SoundProvider>
+                <ThemeSoundManager>
+                  <Router>
+                    <AppRoutes />
+                  </Router>
+                </ThemeSoundManager>
+              </SoundProvider>
             </HabitsProvider>
           </SettingsProvider>
         </AuthProvider>

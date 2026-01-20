@@ -8,6 +8,8 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSettings, DEFAULT_SETTINGS } from '../../contexts/SettingsContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 import { getUserStorageKey, getCurrentUserId } from '../../utils/userStorage';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -18,17 +20,27 @@ import {
   DeleteAccountDialog,
   ResetSettingsDialog
 } from './components';
+import SoundSettings from '../../components/user/SoundSettings';
+import SoundTest from '../../components/debug/SoundTest';
+import SimpleSoundTest from '../../components/debug/SimpleSoundTest';
 
 const SettingsPage = () => {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const { settings, updateSetting, resetSettings } = useSettings();
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
   const navigate = useNavigate();
 
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+
+  const handleThemeToggle = () => {
+    soundManager.playThemeToggle();
+    toggleTheme();
+  };
 
   const handleSettingChange = (setting) => {
     updateSetting(setting, !settings[setting]);
@@ -139,7 +151,7 @@ const SettingsPage = () => {
       <Grid container spacing={4}>
         {/* Appearance */}
         <Grid size={12}>
-          <AppearanceCard theme={theme} toggleTheme={toggleTheme} />
+          <AppearanceCard theme={theme} toggleTheme={handleThemeToggle} />
         </Grid>
 
         {/* Notifications & Reminders */}
@@ -149,6 +161,21 @@ const SettingsPage = () => {
             onSettingChange={handleSettingChange}
             onUpdateSetting={updateSetting}
           />
+        </Grid>
+
+        {/* Sound Settings */}
+        <Grid size={12}>
+          <SoundSettings />
+        </Grid>
+
+        {/* Simple Sound Debug */}
+        <Grid size={12}>
+          <SimpleSoundTest />
+        </Grid>
+
+        {/* Debug Sound Test */}
+        <Grid size={12}>
+          <SoundTest />
         </Grid>
 
         {/* Data & Privacy */}

@@ -1,0 +1,86 @@
+.sound-debug {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.sound-debug h3 {
+  color: #495057;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.debug-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.debug-section h4 {
+  color: #6c757d;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.sound-test-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.sound-debug button {
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.sound-debug button:hover {
+  background: #0056b3;
+}
+
+.debug-output {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.debug-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: #e7f3ff;
+  border-radius: 6px;
+  border: 1px solid #b3d9ff;
+}
+
+.debug-info p {
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #0066cc;
+}
+
+.debug-info ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.debug-info li {
+  margin-bottom: 5px;
+  color: #495057;
+  font-size: 14px;
+}

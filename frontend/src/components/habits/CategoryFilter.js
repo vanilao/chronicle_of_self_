@@ -3,13 +3,24 @@ import {
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 
 const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
+
+  const handleCategoryChange = (e, value) => {
+    if (value) {
+      soundManager.playClick1();
+      onCategoryChange(value);
+    }
+  };
   return (
     <ToggleButtonGroup
       value={selectedCategory}
       exclusive
-      onChange={(e, value) => value && onCategoryChange(value)}
+      onChange={handleCategoryChange}
       sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}
     >
       {categories.map((category) => (

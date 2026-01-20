@@ -1,0 +1,5 @@
+// This is a placeholder file
+// In a real implementation, you would replace this with actual MP3 sound files
+// For now, the useSound hook will use fallback tones when these files don't exist
+// You can download free sounds from: https://freesound.org/
+// Search terms: "chime", "positive", "completion", "8-bit"

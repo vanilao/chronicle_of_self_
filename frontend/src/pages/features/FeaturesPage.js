@@ -19,8 +19,17 @@ import {
   Speed,
   CloudSync
 } from '@mui/icons-material';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 
 const FeaturesPage = () => {
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
+
+  const handleButtonClick = () => {
+    soundManager.playClick1();
+  };
+
   const features = [
     {
       icon: GpsFixed,
@@ -199,6 +208,7 @@ const FeaturesPage = () => {
               color="secondary"
               size="large"
               sx={{ px: 4, py: 1.5 }}
+              onClick={handleButtonClick}
             >
               GET STARTED FREE
             </Button>
@@ -214,6 +224,7 @@ const FeaturesPage = () => {
                 color: 'text.primary',
                 '&:hover': { bgcolor: 'background.default' }
               }}
+              onClick={handleButtonClick}
             >
               VIEW PRICING
             </Button>

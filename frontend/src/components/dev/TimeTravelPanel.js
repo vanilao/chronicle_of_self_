@@ -16,9 +16,13 @@ import {
   ExpandLess
 } from '@mui/icons-material';
 import { useTimeTravel } from '../../contexts/TimeTravelContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 
 const TimeTravelPanel = () => {
   const { currentDate, currentDateString, advanceDay, rewindDay, resetDay } = useTimeTravel();
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
   const [isExpanded, setIsExpanded] = useState(true);
 
   const today = new Date();
@@ -31,6 +35,26 @@ const TimeTravelPanel = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleRewindDay = () => {
+    soundManager.playTimeTravel();
+    rewindDay();
+  };
+
+  const handleAdvanceDay = () => {
+    soundManager.playTimeTravel();
+    advanceDay();
+  };
+
+  const handleResetDay = () => {
+    soundManager.playCancel();
+    resetDay();
+  };
+
+  const handleToggleExpand = () => {
+    soundManager.playCheck();
+    setIsExpanded(!isExpanded);
   };
 
   return (
@@ -59,7 +83,7 @@ const TimeTravelPanel = () => {
           cursor: 'pointer',
           borderBottom: isExpanded ? '2px solid black' : 'none'
         }}
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={handleToggleExpand}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Schedule sx={{ fontSize: 20, color: 'text.primary' }} />
@@ -123,7 +147,7 @@ const TimeTravelPanel = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
             <Tooltip title="Previous Day" arrow>
               <IconButton
-                onClick={rewindDay}
+                onClick={handleRewindDay}
                 size="small"
                 sx={{
                   bgcolor: 'background.default',
@@ -140,7 +164,7 @@ const TimeTravelPanel = () => {
 
             <Tooltip title="Reset to Today" arrow>
               <IconButton
-                onClick={resetDay}
+                onClick={handleResetDay}
                 size="small"
                 disabled={isToday}
                 sx={{
@@ -161,7 +185,7 @@ const TimeTravelPanel = () => {
 
             <Tooltip title="Next Day" arrow>
               <IconButton
-                onClick={advanceDay}
+                onClick={handleAdvanceDay}
                 size="small"
                 sx={{
                   bgcolor: 'background.default',

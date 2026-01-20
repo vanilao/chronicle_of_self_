@@ -22,29 +22,45 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 import { getXPProgressPercentage } from '../../utils/levelingSystem';
 
 const UserNavbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleThemeToggle = () => {
+    soundManager.playThemeToggle();
+    toggleTheme();
+  };
+
+  const handleMenuOpen = (event) => {
+    soundManager.playMenuOpen();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    soundManager.playMenuClose();
+    setAnchorEl(null);
+  };
 
   if (!user) return null;
 
   const xpProgress = getXPProgressPercentage(user.currentXP ?? 0, user.nextLevelXP ?? 100);
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleLogout = () => {
+    soundManager.playButtonClick();
     handleMenuClose();
     logout();
     window.location.href = '/';
+  };
+
+  const handleNavClick = () => {
+    soundManager.playClick1();
   };
 
   return (
@@ -86,6 +102,7 @@ const UserNavbar = () => {
             <Typography
               component={Link}
               to="/dashboard"
+              onClick={handleNavClick}
               sx={{
                 fontFamily: '"IBM Plex Mono", monospace',
                 fontWeight: 600,
@@ -99,6 +116,7 @@ const UserNavbar = () => {
             <Typography
               component={Link}
               to="/habits"
+              onClick={handleNavClick}
               sx={{
                 fontFamily: '"IBM Plex Mono", monospace',
                 fontWeight: 600,
@@ -112,6 +130,7 @@ const UserNavbar = () => {
             <Typography
               component={Link}
               to="/progress"
+              onClick={handleNavClick}
               sx={{
                 fontFamily: '"IBM Plex Mono", monospace',
                 fontWeight: 600,
@@ -287,7 +306,7 @@ const UserNavbar = () => {
 
             <MenuItem
               onClick={() => {
-                toggleTheme();
+                handleThemeToggle();
                 handleMenuClose();
               }}
               sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.875rem', py: 1.5 }}

@@ -9,6 +9,8 @@ import { Add } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTimeTravel } from '../../contexts/TimeTravelContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 import HabitCard from '../../components/habits/HabitCard';
 import CreateHabitModal from '../../components/habits/CreateHabitModal';
 import HabitFilters from '../../components/habits/HabitFilters';
@@ -23,9 +25,28 @@ const DashboardPage = () => {
   const { habits, isLoading, getHabitStreak } = useHabits();
   const { user } = useAuth();
   const { currentDate, currentDateString } = useTimeTravel();
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
   const [filterCategory, setFilterCategory] = useState('All');
+
+  const handleOpenModal = () => {
+    soundManager.playMenuOpen();
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    soundManager.playMenuClose();
+    setIsModalOpen(false);
+    setHabitToEdit(null);
+  };
+
+  const handleSilentClose = () => {
+    // Close modal without sound for successful submission
+    setIsModalOpen(false);
+    setHabitToEdit(null);
+  };
 
   const todayIso = currentDateString;
 
@@ -160,7 +181,7 @@ const DashboardPage = () => {
               DAILY QUESTS
             </Typography>
             <Button
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenModal}
               variant="contained"
               color="secondary"
               startIcon={<Add />}
@@ -171,7 +192,7 @@ const DashboardPage = () => {
 
           {/* Today's Habits */}
           {todaysHabits.length === 0 ? (
-            <EmptyState onCreateHabit={() => setIsModalOpen(true)} />
+            <EmptyState onCreateHabit={handleOpenModal} />
           ) : (
             <Box className="space-y-4">
               {todaysHabits.map((habit) => (
@@ -179,6 +200,7 @@ const DashboardPage = () => {
                   key={habit.id}
                   habit={habit}
                   onEdit={(selectedHabit) => {
+                    soundManager.playButtonClick();
                     setHabitToEdit(selectedHabit);
                     setIsModalOpen(true);
                   }}
@@ -194,10 +216,8 @@ const DashboardPage = () => {
       <CreateHabitModal
         isOpen={isModalOpen}
         habitToEdit={habitToEdit}
-        onClose={() => {
-          setIsModalOpen(false);
-          setHabitToEdit(null);
-        }}
+        onClose={handleCloseModal}
+        onSilentClose={handleSilentClose}
       />
     </Box>
   );

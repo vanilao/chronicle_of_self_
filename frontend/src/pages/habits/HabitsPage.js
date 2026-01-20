@@ -10,6 +10,8 @@ import {
 import { Add } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useTimeTravel } from '../../contexts/TimeTravelContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 import CreateHabitModal from '../../components/habits/CreateHabitModal';
 import HabitCard from '../../components/habits/HabitCard';
 import TodayStats from '../../components/habits/TodayStats';
@@ -19,6 +21,8 @@ import HabitsEmptyState from '../../components/habits/HabitsEmptyState';
 const HabitsPage = () => {
   const { habits, isLoading } = useHabits();
   const { currentDateString } = useTimeTravel();
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
   const [filterCategory, setFilterCategory] = useState('All');
@@ -42,6 +46,23 @@ const HabitsPage = () => {
   };
 
   const stats = getTodayStats();
+
+  const handleOpenModal = () => {
+    soundManager.playMenuOpen();
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    soundManager.playMenuClose();
+    setIsModalOpen(false);
+    setHabitToEdit(null);
+  };
+
+  const handleSilentClose = () => {
+    // Close modal without sound for successful submission
+    setIsModalOpen(false);
+    setHabitToEdit(null);
+  };
 
   if (isLoading) {
     return (
@@ -78,7 +99,7 @@ const HabitsPage = () => {
         </Box>
 
         <Button
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenModal}
           variant="contained"
           color="secondary"
           startIcon={<Add />}
@@ -128,17 +149,15 @@ const HabitsPage = () => {
         </Card>
       ) : (
         /* Empty State */
-        <HabitsEmptyState onCreateHabit={() => setIsModalOpen(true)} />
+        <HabitsEmptyState onCreateHabit={handleOpenModal} />
       )}
 
       {/* Create Habit Modal */}
       <CreateHabitModal
         isOpen={isModalOpen}
         habitToEdit={habitToEdit}
-        onClose={() => {
-          setIsModalOpen(false);
-          setHabitToEdit(null);
-        }}
+        onClose={handleCloseModal}
+        onSilentClose={handleSilentClose}
       />
     </Box>
   );

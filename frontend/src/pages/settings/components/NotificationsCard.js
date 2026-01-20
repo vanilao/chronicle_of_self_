@@ -10,8 +10,17 @@ import {
   FormControlLabel
 } from '@mui/material';
 import { Notifications, VolumeUp, Info } from '@mui/icons-material';
+import { useSoundContext } from '../../../contexts/SoundContext';
+import SoundManager from '../../../utils/soundManager';
 
 const NotificationsCard = ({ settings, onSettingChange, onUpdateSetting }) => {
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
+
+  const handleToggleChange = (settingName) => {
+    soundManager.playCheck();
+    onSettingChange(settingName);
+  };
   return (
     <Card>
       <CardContent sx={{ p: 4 }} className="space-y-4">
@@ -61,7 +70,7 @@ const NotificationsCard = ({ settings, onSettingChange, onUpdateSetting }) => {
           </Box>
           <Switch
             checked={settings.notifications}
-            onChange={() => onSettingChange('notifications')}
+            onChange={() => handleToggleChange('notifications')}
             color="primary"
           />
         </Box>
@@ -102,7 +111,7 @@ const NotificationsCard = ({ settings, onSettingChange, onUpdateSetting }) => {
           </Box>
           <Switch
             checked={settings.soundEffects}
-            onChange={() => onSettingChange('soundEffects')}
+            onChange={() => handleToggleChange('soundEffects')}
             color="primary"
           />
         </Box>
@@ -114,7 +123,7 @@ const NotificationsCard = ({ settings, onSettingChange, onUpdateSetting }) => {
             control={
               <Switch
                 checked={settings.dailyReminder}
-                onChange={() => onSettingChange('dailyReminder')}
+                onChange={() => handleToggleChange('dailyReminder')}
                 color="primary"
               />
             }

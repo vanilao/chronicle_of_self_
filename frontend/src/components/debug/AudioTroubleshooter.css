@@ -1,0 +1,158 @@
+.audio-troubleshooter {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #dee2e6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.audio-troubleshooter h3 {
+  color: #495057;
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 24px;
+}
+
+.troubleshoot-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.troubleshoot-section h4 {
+  color: #6c757d;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.troubleshoot-section button {
+  display: inline-block;
+  margin: 6px;
+  padding: 12px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.troubleshoot-section button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.troubleshoot-section button:active {
+  transform: translateY(0);
+}
+
+.log-container {
+  background: #1e1e1e;
+  color: #00ff00;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.log-entry {
+  margin-bottom: 4px;
+  word-wrap: break-word;
+}
+
+.clear-button {
+  background: #dc3545 !important;
+}
+
+.clear-button:hover {
+  background: #c82333 !important;
+}
+
+.troubleshoot-info {
+  margin-top: 24px;
+  padding: 20px;
+  background: #e7f3ff;
+  border-radius: 8px;
+  border: 1px solid #b3d9ff;
+}
+
+.troubleshoot-info h4 {
+  color: #0066cc;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.troubleshoot-info ol,
+.troubleshoot-info ul {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.troubleshoot-info li {
+  margin-bottom: 8px;
+  color: #495057;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.troubleshoot-info strong {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+/* Success log styling */
+.log-entry:contains('✅') {
+  color: #28a745;
+}
+
+/* Error log styling */
+.log-entry:contains('❌') {
+  color: #dc3545;
+}
+
+/* Warning log styling */
+.log-entry:contains('⚠️') {
+  color: #ffc107;
+}
+
+/* Info log styling */
+.log-entry:contains('🔊') {
+  color: #17a2b8;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .audio-troubleshooter {
+    margin: 16px;
+    padding: 16px;
+  }
+  
+  .troubleshoot-section {
+    padding: 16px;
+  }
+  
+  .troubleshoot-section button {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+  }
+  
+  .log-container {
+    font-size: 12px;
+    max-height: 200px;
+  }
+}

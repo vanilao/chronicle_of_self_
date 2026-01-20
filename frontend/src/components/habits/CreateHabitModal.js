@@ -25,6 +25,8 @@ import {
 } from '@mui/icons-material';
 import { useHabits } from '../../contexts/HabitsContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 
 const defaultFormState = {
   name: '',
@@ -37,9 +39,11 @@ const defaultFormState = {
   notificationTime: '08:00'
 };
 
-const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
+const CreateHabitModal = ({ isOpen, onClose, onSilentClose, habitToEdit = null }) => {
   const { addHabit, updateHabit } = useHabits();
   const { user } = useAuth();
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
   const [formData, setFormData] = useState(defaultFormState);
 
   const isEditMode = Boolean(habitToEdit);
@@ -83,8 +87,26 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
   const bonusMultiplier = bonusActive ? 1.25 : 1;
   const xpReward = Math.round(baseXp * bonusMultiplier);
 
+  const handleCategorySelect = (category) => {
+    soundManager.playButtonClick();
+    setFormData({ ...formData, category });
+  };
+
+  const handleDifficultySelect = (difficulty) => {
+    soundManager.playButtonClick();
+    setFormData({ ...formData, difficulty });
+  };
+
+  const handleFrequencySelect = (frequency) => {
+    soundManager.playButtonClick();
+    setFormData({ ...formData, frequency });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Play race sound for habit creation
+    soundManager.playGrowtopiaRaceSound();
 
     const payload = {
       ...formData,
@@ -101,11 +123,19 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
     }
 
     setFormData(defaultFormState);
-    onClose();
+    onSilentClose();
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Play sound for interactive controls
+    if (name === 'notificationsEnabled') {
+      soundManager.playCheck();
+    } else if (name === 'notificationTime') {
+      soundManager.playButtonClick();
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -113,6 +143,7 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
   };
 
   const toggleDaySelection = (dayKey) => {
+    soundManager.playButtonClick();
     setFormData(prev => {
       const isSelected = prev.selectedDays.includes(dayKey);
       const selectedDays = isSelected
@@ -139,7 +170,10 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
   return (
     <Dialog
       open={isOpen}
-      onClose={onClose}
+      onClose={() => {
+        soundManager.playMenuClose();
+        onClose();
+      }}
       maxWidth="md"
       fullWidth
       PaperProps={{
@@ -170,7 +204,10 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
           {isEditMode ? 'EDIT HABIT' : 'CREATE NEW HABIT'}
         </Typography>
         <IconButton
-          onClick={onClose}
+          onClick={() => {
+            soundManager.playMenuClose();
+            onClose();
+          }}
           sx={{
             bgcolor: 'background.default',
             border: '3px solid black',
@@ -234,7 +271,7 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
                   return (
                     <Grid size={{ xs: 6, md: 3 }} key={cat.name}>
                       <Box
-                        onClick={() => setFormData({ ...formData, category: cat.name })}
+                        onClick={() => handleCategorySelect(cat.name)}
                         sx={{
                           p: 2,
                           borderRadius: 2,
@@ -319,7 +356,7 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
                   return (
                     <Grid size={{ xs: 4 }} key={diff.name}>
                       <Box
-                        onClick={() => setFormData({ ...formData, difficulty: diff.name })}
+                        onClick={() => handleDifficultySelect(diff.name)}
                         sx={{
                           p: 2,
                           borderRadius: 2,
@@ -416,11 +453,16 @@ const CreateHabitModal = ({ isOpen, onClose, habitToEdit = null }) => {
               <ToggleButtonGroup
                 value={formData.frequencyType}
                 exclusive
-                onChange={(e, value) => value && setFormData(prev => ({
-                  ...prev,
-                  frequencyType: value,
-                  frequency: value === 'Daily' ? 'Daily' : 'Weekly'
-                }))}
+                onChange={(e, value) => {
+                  if (value) {
+                    soundManager.playButtonClick();
+                    setFormData(prev => ({
+                      ...prev,
+                      frequencyType: value,
+                      frequency: value === 'Daily' ? 'Daily' : 'Weekly'
+                    }));
+                  }
+                }}
                 fullWidth
                 sx={{ mb: 2 }}
               >

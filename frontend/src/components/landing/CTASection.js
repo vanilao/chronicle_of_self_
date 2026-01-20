@@ -2,8 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Typography, Button, Card, CardContent } from '@mui/material';
 import { FlashOn } from '@mui/icons-material';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 
 const CTASection = () => {
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
+
+  const handleClick = () => {
+    soundManager.playClick1();
+  };
   return (
     <Box component="section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <Card
@@ -104,6 +112,7 @@ const CTASection = () => {
                 variant="contained"
                 size="large"
                 startIcon={<FlashOn />}
+                onClick={handleClick}
                 sx={{
                   px: 5,
                   py: 2.5,
@@ -123,6 +132,7 @@ const CTASection = () => {
                 to="/login"
                 variant="contained"
                 size="large"
+                onClick={handleClick}
                 sx={{
                   px: 5,
                   py: 2.5,

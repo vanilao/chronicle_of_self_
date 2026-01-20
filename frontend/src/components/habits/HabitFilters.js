@@ -1,5 +1,7 @@
 import React from 'react';
 import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 
 const HabitFilters = ({
   categories = [],
@@ -9,6 +11,9 @@ const HabitFilters = ({
   selectedDayFilter,
   onDayFilterChange
 }) => {
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
+  
   if (!categories.length && !dayFilterOptions.length) return null;
 
   return (
@@ -17,7 +22,12 @@ const HabitFilters = ({
         <ToggleButtonGroup
           value={selectedCategory}
           exclusive
-          onChange={(e, value) => value && onCategoryChange?.(value)}
+          onChange={(e, value) => {
+            if (value) {
+              soundManager.playButtonClick();
+              onCategoryChange?.(value);
+            }
+          }}
           sx={{ flexWrap: 'wrap', gap: 1 }}
         >
           {categories.map((category) => (

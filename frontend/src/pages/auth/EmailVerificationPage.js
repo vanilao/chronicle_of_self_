@@ -13,11 +13,17 @@ import {
 import { ArrowBack, FlashOn, Refresh } from '@mui/icons-material';
 import { verifyStoredCode, sendVerificationEmail, generateVerificationCode, storeVerificationCode } from '../../utils/emailService';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import SoundManager from '../../utils/soundManager';
 
 const EmailVerificationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { register } = useAuth();
+  const { playSound } = useSoundContext();
+  const { theme } = useTheme();
+  const soundManager = new SoundManager(playSound);
   const [verificationCode, setVerificationCode] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);

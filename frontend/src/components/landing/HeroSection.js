@@ -14,8 +14,16 @@ import {
   EmojiEvents,
   LocalFireDepartment
 } from '@mui/icons-material';
+import { useSoundContext } from '../../contexts/SoundContext';
+import SoundManager from '../../utils/soundManager';
 
 const HeroSection = () => {
+  const { playSound } = useSoundContext();
+  const soundManager = new SoundManager(playSound);
+
+  const handleClick = () => {
+    soundManager.playClick1();
+  };
   return (
     <Box component="section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
       <Grid container spacing={6} alignItems="center">
@@ -55,6 +63,7 @@ const HeroSection = () => {
                 color="secondary"
                 size="large"
                 startIcon={<FlashOn />}
+                onClick={handleClick}
                 sx={{ px: 4, py: 2, fontSize: '1.125rem' }}
               >
                 START FREE
@@ -64,6 +73,7 @@ const HeroSection = () => {
                 href="#features"
                 variant="contained"
                 size="large"
+                onClick={handleClick}
                 sx={{
                   px: 4,
                   py: 2,

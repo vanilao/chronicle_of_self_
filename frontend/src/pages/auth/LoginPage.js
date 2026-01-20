@@ -9,18 +9,24 @@ import {
   CardContent,
   Divider,
   InputAdornment,
-  FormControlLabel,
-  Checkbox,
+  Alert,
   IconButton,
-  Alert
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import { Email, Lock, FlashOn, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSoundContext } from '../../contexts/SoundContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import SoundManager from '../../utils/soundManager';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { playSound } = useSoundContext();
+  const { theme } = useTheme();
+  const soundManager = new SoundManager(playSound);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -30,6 +36,23 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleClick = () => {
+    soundManager.playClick1();
+  };
+
+  const handleBackToHome = () => {
+    soundManager.playCancel();
+  };
+
+  const handleCreateAccountClick = () => {
+    soundManager.playClick1();
+  };
+
+  const handleRememberMeChange = (e) => {
+    soundManager.playCheck();
+    setFormData({ ...formData, rememberMe: e.target.checked });
+  };
 
   // Show success message if coming from password reset
   useEffect(() => {
@@ -43,6 +66,7 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+    soundManager.playButtonClick();
 
     // Check for existing user in localStorage (simulating backend)
     const existingUser = localStorage.getItem('user');
@@ -59,6 +83,9 @@ const LoginPage = () => {
           // Check if password matches (in real app, this would be hashed)
           if (userData.password === formData.password || !userData.password) {
             login(userData);
+            
+            // Navigate to dashboard - ThemeSoundManager will handle starting the music
+            console.log(`🎵 Login successful - navigating to dashboard`);
             navigate('/dashboard');
             return;
           } else {
@@ -188,7 +215,7 @@ const LoginPage = () => {
                   control={
                     <Checkbox
                       checked={formData.rememberMe}
-                      onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                      onChange={handleRememberMeChange}
                       sx={{
                         color: 'primary.main',
                         '&.Mui-checked': { color: 'primary.main' }
@@ -231,6 +258,7 @@ const LoginPage = () => {
                 color="secondary"
                 fullWidth
                 startIcon={<FlashOn />}
+                onClick={handleClick}
                 sx={{
                   py: 2,
                   fontSize: '1.125rem'
@@ -266,6 +294,7 @@ const LoginPage = () => {
                 <Link
                   to="/register"
                   style={{ textDecoration: 'none' }}
+                  onClick={handleCreateAccountClick}
                 >
                   <Typography
                     component="span"
@@ -285,12 +314,12 @@ const LoginPage = () => {
 
         {/* Back to Home */}
         <Box className="text-center">
-          <Link to="/" style={{ textDecoration: 'none' }}>
+          <Link to="/" style={{ textDecoration: 'none' }} onClick={handleBackToHome}>
             <Typography
               sx={{
-                color: 'text.secondary',
                 fontFamily: '"IBM Plex Mono", monospace',
                 fontSize: '0.875rem',
+                color: 'text.secondary',
                 '&:hover': { color: 'primary.main' }
               }}
             >

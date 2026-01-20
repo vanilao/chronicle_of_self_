@@ -16,9 +16,15 @@ import { Email, Lock, Person, FlashOn, Visibility, VisibilityOff } from '@mui/ic
 import { getXPForNextLevel, getTitleForLevel } from '../../utils/levelingSystem';
 import { calculatePasswordStrength } from '../../utils/passwordStrength';
 import { sendVerificationEmail, generateVerificationCode, storeVerificationCode } from '../../utils/emailService';
+import { useSoundContext } from '../../contexts/SoundContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import SoundManager from '../../utils/soundManager';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { playSound } = useSoundContext();
+  const { theme } = useTheme();
+  const soundManager = new SoundManager(playSound);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -30,6 +36,18 @@ const RegisterPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  const handleClick = () => {
+    soundManager.playClick1();
+  };
+
+  const handleBackToHome = () => {
+    soundManager.playCancel();
+  };
+
+  const handleSignInClick = () => {
+    soundManager.playClick1();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -369,6 +387,7 @@ const RegisterPage = () => {
                 fullWidth
                 startIcon={<FlashOn />}
                 disabled={isSendingEmail}
+                onClick={handleClick}
                 sx={{
                   py: 2,
                   fontSize: '1.125rem'
@@ -404,6 +423,7 @@ const RegisterPage = () => {
                 <Link
                   to="/login"
                   style={{ textDecoration: 'none' }}
+                  onClick={handleSignInClick}
                 >
                   <Typography
                     component="span"
@@ -423,12 +443,12 @@ const RegisterPage = () => {
 
         {/* Back to Home */}
         <Box className="text-center">
-          <Link to="/" style={{ textDecoration: 'none' }}>
+          <Link to="/" style={{ textDecoration: 'none' }} onClick={handleBackToHome}>
             <Typography
               sx={{
-                color: 'text.secondary',
                 fontFamily: '"IBM Plex Mono", monospace',
                 fontSize: '0.875rem',
+                color: 'text.secondary',
                 '&:hover': { color: 'primary.main' }
               }}
             >
